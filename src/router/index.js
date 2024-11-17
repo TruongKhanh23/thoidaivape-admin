@@ -107,6 +107,17 @@ const router = createRouter({
             ]
         },
         {
+            path: '/',
+            component: AppLayout,
+            children: [
+                {
+                    path: '/admin/accounts',
+                    name: 'accounts',
+                    component: () => import('@/views/admin/Accounts.vue')
+                }
+            ]
+        },
+        {
             path: '/landing',
             name: 'landing',
             component: () => import('@/views/pages/Landing.vue')
