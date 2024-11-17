@@ -16,6 +16,9 @@ export default defineConfig({
             resolvers: [PrimeVueResolver()]
         })
     ],
+    server: {
+        port: 5176 // Thay đổi thành cổng bạn muốn, ví dụ: 3001
+    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
