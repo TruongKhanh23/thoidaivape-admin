@@ -114,6 +114,11 @@ const router = createRouter({
                     path: '/admin/accounts',
                     name: 'accounts',
                     component: () => import('@/views/admin/Accounts.vue')
+                },
+                {
+                    path: '/admin/firebase',
+                    name: 'firebase',
+                    component: () => import('@/views/admin/SampleFirebase.vue')
                 }
             ]
         },
