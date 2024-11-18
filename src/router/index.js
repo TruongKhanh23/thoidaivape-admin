@@ -111,9 +111,9 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: '/admin/accounts',
-                    name: 'accounts',
-                    component: () => import('@/views/admin/Accounts.vue')
+                    path: '/admin/users',
+                    name: 'users',
+                    component: () => import('@/views/admin/Users.vue')
                 },
                 {
                     path: '/admin/firebase',

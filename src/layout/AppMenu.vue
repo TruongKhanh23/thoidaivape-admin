@@ -18,8 +18,8 @@ const model = ref([
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
     },
     {
-        label: 'Customer',
-        items: [{ label: 'Accounts', icon: 'pi pi-fw pi-home', to: '/admin/accounts' }]
+        label: 'Manage',
+        items: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/Users' }]
     },
     {
         label: 'Sample',
