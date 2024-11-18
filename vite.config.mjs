@@ -23,5 +23,13 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
+    },
+    build: {
+        rollupOptions: {
+            external: [
+                'firebase/firestore', // Đánh dấu module là external để tránh lỗi
+                'firebase/app'
+            ]
+        }
     }
 });
