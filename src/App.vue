@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+document.documentElement.classList.toggle('app-dark');
+</script>
 
 <template>
     <router-view />
