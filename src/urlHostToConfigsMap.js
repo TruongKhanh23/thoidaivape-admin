@@ -11,22 +11,22 @@ const urlHostToConfigsMap = {
         measurementId: 'G-2HJNB5HNWH'
     },
     'thoidaivape-uat.vercel.app': {
-        apiKey: 'AIzaSyBt1pLrXIoKP5Nq9-ud6V38YrksDTwu4i8',
-        authDomain: 'thoidaivape-uat.firebaseapp.com',
-        projectId: 'thoidaivape-uat',
-        storageBucket: 'thoidaivape-uat.firebasestorage.app',
-        messagingSenderId: '509802037475',
-        appId: '1:509802037475:web:5b1edc5a545fbb41eac5d6',
-        measurementId: 'G-G6QYXJHWQL'
+        apiKey: 'AIzaSyDX7lZ2Ldb0csk79qAHouqfnfbg-VqC_dI',
+        authDomain: 'thoidaivape-uat-850a8.firebaseapp.com',
+        projectId: 'thoidaivape-uat-850a8',
+        storageBucket: 'thoidaivape-uat-850a8.firebasestorage.app',
+        messagingSenderId: '756775153538',
+        appId: '1:756775153538:web:aee0104b5ee05f9794e99b',
+        measurementId: 'G-2MVGE604XZ'
     },
     'thoidaivape.vercel.app': {
-        apiKey: 'AIzaSyBblvkVmQyn27og-gpzzQ893NJCqyqDStE',
-        authDomain: 'thoidaivape-38a1d.firebaseapp.com',
-        projectId: 'thoidaivape-38a1d',
-        storageBucket: 'thoidaivape-38a1d.firebasestorage.app',
-        messagingSenderId: '23118670363',
-        appId: '1:23118670363:web:40e550f59b4a2b6305a6be',
-        measurementId: 'G-7LVSMJDXLY'
+        apiKey: 'AIzaSyAO66aM1K4Rno3HePNq9VuEBjQYQVAkI1s',
+        authDomain: 'thoidaivape-6e1e5.firebaseapp.com',
+        projectId: 'thoidaivape-6e1e5',
+        storageBucket: 'thoidaivape-6e1e5.firebasestorage.app',
+        messagingSenderId: '54094164557',
+        appId: '1:54094164557:web:f4520796e66961dffca204',
+        measurementId: 'G-S84WJ94R4X'
     },
     localhost: {
         apiKey: 'AIzaSyA5ShLy-ucueVnGH5xk7MSEpM3aDQLfcqs',
