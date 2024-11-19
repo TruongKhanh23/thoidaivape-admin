@@ -32,17 +32,18 @@ export async function getPaginatedUsers(lastVisible = null, maxUsers = 50, searc
     // Kiểm tra xem có từ khóa tìm kiếm hay không
     if (searchQuery && searchQuery.trim() !== '') {
         // Kiểm tra xem kết quả đã được cache chưa
-        if (searchCache[searchQuery]) {
+        const cacheKey = searchQuery.trim() + (lastVisible ? lastVisible.id : '');
+        if (searchCache[cacheKey]) {
             // Nếu có, lấy dữ liệu từ cache
             return {
-                users: searchCache[searchQuery].users,
-                lastVisible: searchCache[searchQuery].lastVisible,
-                totalRecords: searchCache[searchQuery].totalRecords
+                users: searchCache[cacheKey].users,
+                lastVisible: searchCache[cacheKey].lastVisible,
+                totalRecords: searchCache[cacheKey].totalRecords
             };
         }
 
         // Nếu chưa cache, thực hiện truy vấn
-        usersQuery = query(usersQuery, where('fullName', '>=', searchQuery));
+        usersQuery = query(usersQuery, where('fullName', '>=', searchQuery), where('fullName', '<=', searchQuery + '\uf8ff'));
     } else {
         // Nếu không có từ khóa tìm kiếm, trả về tất cả người dùng
         if (searchCache[''] && searchCache[''].users.length > 0) {
@@ -66,8 +67,10 @@ export async function getPaginatedUsers(lastVisible = null, maxUsers = 50, searc
     });
 
     // Cập nhật cache với kết quả tìm kiếm
-    if (searchQuery && searchQuery.trim() !== '') {
-        searchCache[searchQuery] = {
+    const cacheKey = searchQuery + lastVisible?.id;
+    if (searchQuery && searchQuery.trim() !== '' && !searchCache[cacheKey]) {
+        // Kiểm tra cache theo searchQuery kết hợp với lastVisible
+        searchCache[cacheKey] = {
             users,
             lastVisible: lastDoc,
             totalRecords: querySnapshot.size
