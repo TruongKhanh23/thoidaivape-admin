@@ -129,6 +129,10 @@ function viewUserDetails(value) {
     userDialog.value = true;
 }
 
+function exportCSV() {
+    dt.value.exportCSV();
+}
+
 // Initial Load
 onMounted(fetchUsers);
 </script>
