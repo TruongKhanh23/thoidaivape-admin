@@ -22,7 +22,7 @@
                     </div>
                 </template>
 
-                <Column field="fullName" header="Họ và tên" sortable style="min-width: 16rem"></Column>
+                <Column field="displayName" header="Họ và tên" sortable style="min-width: 16rem"></Column>
                 <Column field="email" header="Email" sortable style="min-width: 20rem"></Column>
                 <Column field="phoneNumber" header="Số điện thoại" sortable style="min-width: 15rem"></Column>
                 <Column field="provider" header="Loại tài khoản" sortable style="min-width: 10rem"></Column>
@@ -37,8 +37,8 @@
             <Dialog v-model:visible="userDialog" :style="{ width: '450px' }" header="Thông tin chi tiết" :modal="true">
                 <div class="flex flex-col gap-6">
                     <div>
-                        <label for="fullName" class="block font-bold mb-3">Họ và tên</label>
-                        <InputText id="fullName" v-model.trim="user.fullName" required="true" autofocus disabled
+                        <label for="displayName" class="block font-bold mb-3">Họ và tên</label>
+                        <InputText id="displayName" v-model.trim="user.displayName" required="true" autofocus disabled
                             fluid />
                     </div>
 
