@@ -38,15 +38,13 @@
                 <div class="flex flex-col gap-6">
                     <div>
                         <label for="fullName" class="block font-bold mb-3">Họ và tên</label>
-                        <InputText id="fullName" v-model.trim="user.fullName" required="true" autofocus
-                            :invalid="submitted && !user.fullName" disabled fluid />
-                        <small v-if="submitted && !user.fullName" class="text-red-500">Vui lòng nhập tên</small>
+                        <InputText id="fullName" v-model.trim="user.fullName" required="true" autofocus disabled
+                            fluid />
                     </div>
 
                     <div>
                         <label for="email" class="block font-bold mb-3">Email</label>
                         <InputText id="email" v-model.trim="user.email" required="true" disabled fluid />
-                        <small v-if="submitted && !user.email" class="text-red-500">Vui lòng nhập email</small>
                     </div>
 
                     <div>
