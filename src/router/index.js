@@ -10,8 +10,8 @@ const router = createRouter({
             children: [
                 {
                     path: '/',
-                    name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    name: 'user',
+                    component: () => import('@/views/admin/Users.vue')
                 },
                 {
                     path: '/uikit/formlayout',
@@ -103,6 +103,22 @@ const router = createRouter({
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/pages/Documentation.vue')
+                }
+            ]
+        },
+        {
+            path: '/',
+            component: AppLayout,
+            children: [
+                {
+                    path: '/admin/users',
+                    name: 'users',
+                    component: () => import('@/views/admin/Users.vue')
+                },
+                {
+                    path: '/admin/firebase',
+                    name: 'firebase',
+                    component: () => import('@/views/admin/SampleFirebase.vue')
                 }
             ]
         },

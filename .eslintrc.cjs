@@ -6,18 +6,12 @@ module.exports = {
     env: {
         node: true
     },
-    extends: ['plugin:vue/vue3-essential', 'eslint:recommended', '@vue/eslint-config-prettier'],
+    extends: ['plugin:vue/vue3-essential', 'eslint:recommended'],
     parserOptions: {
         ecmaVersion: 'latest'
     },
     rules: {
         'vue/multi-word-component-names': 'off',
-        'vue/no-reserved-component-names': 'off',
-        'vue/component-tags-order': [
-            'error',
-            {
-                order: ['script', 'template', 'style']
-            }
-        ]
+        'vue/no-reserved-component-names': 'off'
     }
 };
