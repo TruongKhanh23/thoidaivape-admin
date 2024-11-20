@@ -19,6 +19,11 @@ const router = createRouter({
                     component: () => import('@/views/admin/Accounts.vue')
                 },
                 {
+                    path: '/admin/profile',
+                    name: 'profile',
+                    component: () => import('@/views/admin/Profile.vue')
+                },
+                {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
                     component: () => import('@/views/uikit/FormLayout.vue')
