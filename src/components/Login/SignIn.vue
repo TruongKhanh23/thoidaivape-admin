@@ -25,13 +25,16 @@
 
                         <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                             <div class="flex items-center">
-                                <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
+                                <Checkbox v-model="rememberMe" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Lưu mật khẩu</label>
                             </div>
                             <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Quên mật
                                 khẩu?</span>
                         </div>
-                        <Button label="Đăng nhập" class="w-full" to="/"></Button>
+                        <p v-if="errorMessage" class="text-red-500">
+                            {{ errorMessage }}
+                        </p>
+                        <Button label="Đăng nhập" class="w-full" @click="login"></Button>
                         <p class="text-muted-color font-medium w-full text-center my-2">Chưa có tài khoản?</p>
                         <Button label="Đăng ký" class="w-full" @click="updateLoginType()"></Button>
                     </div>
@@ -43,16 +46,60 @@
 
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
+import { handleAuthenticationSuccess } from '@/composables/authentication/index';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { defineEmits, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const emit = defineEmits(['action:updateLoginType'])
+
 const email = ref('');
 const password = ref('');
-const checked = ref(false);
+const rememberMe = ref(false);
+const errorMessage = ref('')
 
 function updateLoginType() {
     emit('action:updateLoginType', 'register')
 }
+
+const login = async () => {
+    const auth = getAuth()
+
+    try {
+        await signInWithEmailAndPassword(auth, email.value, password.value)
+
+        if (rememberMe.value) {
+            localStorage.setItem('email', email.value)
+            localStorage.setItem('password', password.value)
+            localStorage.setItem('rememberMe', rememberMe.value)
+        } else {
+            localStorage.removeItem('email')
+            localStorage.removeItem('password')
+            localStorage.removeItem('rememberMe')
+        }
+
+        handleAuthenticationSuccess(auth.currentUser, router)
+    } catch (error) {
+        console.log('error code', error.code)
+        switch (error.code) {
+            case 'auth/invalid-email':
+                errorMessage.value = 'Email không hợp lệ'
+                break
+            case 'auth/user-not-found':
+                errorMessage.value = 'Không tìm thấy tài khoản với email này'
+                break
+            case 'auth/wrong-password':
+                errorMessage.value = 'Sai mật khẩu'
+                break
+            default:
+                errorMessage.value = 'Email hoặc mật khẩu không chính xác'
+                break
+        }
+    }
+}
+
 </script>
 
 <style scoped>
