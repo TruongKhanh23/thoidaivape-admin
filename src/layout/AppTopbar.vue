@@ -36,7 +36,7 @@
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action" @click="router.push('/admin/profile')">
+                    <button type="button" class="layout-topbar-action" @click="navigateTo('/admin/profile')">
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
@@ -48,10 +48,16 @@
 
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import { useRouter } from "vue-router";
+import { useRouter } from 'vue-router';
 import AppConfigurator from './AppConfigurator.vue';
 
 const router = useRouter();
+
+function navigateTo(path) {
+    console.log('went navigate to');
+
+    router.push(path);
+}
 
 const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
 </script>

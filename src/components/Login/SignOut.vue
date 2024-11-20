@@ -7,9 +7,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
-import router from '@/router';
+import { useRouter } from 'vue-router';
 import store from '@/store';
 
+const router = useRouter();
 const isLoggedIn = ref(false);
 const user = ref({
     displayName: ''
@@ -28,7 +29,6 @@ onMounted(() => {
 });
 
 const handleSignOut = () => {
-    console.log('went sign out');
     signOut(auth).then(() => {
         store.dispatch('setIsLoggedIn', false);
         store.dispatch('setAccount', {});
