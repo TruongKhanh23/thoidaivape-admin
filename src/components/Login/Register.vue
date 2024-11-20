@@ -12,19 +12,22 @@
                         <span class="text-muted-color font-medium">Thời đại Vape</span>
                     </div>
 
-                    <div>
+                    <div class="space-y-4">
                         <label for="email1"
-                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
+                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium">Email</label>
                         <InputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8"
                             v-model="email" />
 
                         <label for="password1"
-                            class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                            class="block text-surface-900 dark:text-surface-0 font-medium text-xl">Password</label>
                         <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true"
-                            class="mb-4" fluid :feedback="false"></Password>
-
-                        <Button label="Sign In" class="w-full" as="router-link" to="/"></Button>
-                        <p class="text-muted-color font-medium text-center my-2">Đã có tài khoản?</p>
+                            fluid :feedback="false"></Password>
+                        <p v-if="errorMessage" class="text-red-500">
+                            {{ errorMessage }}
+                        </p>
+                        <Button label="Đăng ký" class="w-full" @click="register"></Button>
+                        <SignInWithGoogle @action:updateErrorMessage="handleErrorMessage" />
+                        <p class="font-semibold text-center">Đã có tài khoản?</p>
                         <Button label="Đăng nhập" class="w-full" @click="updateLoginType()"></Button>
                     </div>
                 </div>
@@ -35,15 +38,57 @@
 
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import { defineEmits, ref } from 'vue';
+import { ref, defineEmits } from 'vue'
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { useRouter } from 'vue-router'
+import { handleAuthenticationSuccess } from '@/composables/authentication/index'
+import SignInWithGoogle from './SignInWithGoogle.vue';
+
+const router = useRouter()
 
 const emit = defineEmits(['action:updateLoginType'])
-const email = ref('');
-const password = ref('');
-const checked = ref(false);
+
+const email = ref('')
+const password = ref('')
+const errorMessage = ref('')
+
+const register = () => {
+  const auth = getAuth()
+  createUserWithEmailAndPassword(auth, email.value, password.value)
+    .then(() => {
+      // Đăng nhập ngay sau khi tạo tài khoản
+      signInWithEmailAndPassword(auth, email.value, password.value)
+
+      handleAuthenticationSuccess(auth.currentUser, router)
+    })
+    .catch((error) => {
+      // Bắt lỗi và hiển thị thông báo lỗi bằng tiếng Việt
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage.value = 'Email này đã được sử dụng. Vui lòng chọn email khác.'
+          break
+        case 'auth/invalid-email':
+          errorMessage.value = 'Email không hợp lệ. Vui lòng kiểm tra lại.'
+          break
+        case 'auth/weak-password':
+          errorMessage.value = 'Mật khẩu quá yếu. Mật khẩu phải có ít nhất 6 ký tự.'
+          break
+        case 'auth/operation-not-allowed':
+          errorMessage.value = 'Đăng ký không thành công. Vui lòng thử lại sau.'
+          break
+        default:
+          errorMessage.value = 'Đã xảy ra lỗi. Vui lòng thử lại.'
+      }
+      console.log(error.code)
+    })
+}
 
 function updateLoginType() {
     emit('action:updateLoginType', 'signIn')
+}
+
+function handleErrorMessage(value) {
+  errorMessage.value = value
 }
 </script>
 

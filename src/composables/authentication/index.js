@@ -2,45 +2,45 @@ import { db } from '@/firebaseConfig'; // Import auth và Firestore từ Firebas
 import store from '@/store';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
-export const handleAuthenticationSuccess = async (user, router) => {
-    store.dispatch('setUser', user);
+export const handleAuthenticationSuccess = async (account, router) => {
+    store.dispatch('setAccount', account);
     store.dispatch('setIsLoggedIn', true);
 
-    await createUser(user);
+    await createAccount(account);
 
-    router.push({ name: 'home' }).then(() => {
+    router.push("/").then(() => {
         window.scrollTo(0, 0);
     });
 };
 
 /**
- * Function để xử lý tạo hoặc đăng nhập user.
+ * Function để xử lý tạo hoặc đăng nhập account.
  * @param {Object} params - Các tham số.
  * @param {String} params.email - Email của người dùng.
  * @param {String} params.password - Mật khẩu (có thể null nếu sử dụng Google).
- * @param {Function} params.authMethod - Hàm đăng nhập (createUserWithEmailAndPassword, signInWithEmailAndPassword, hoặc signInWithPopup).
+ * @param {Function} params.authMethod - Hàm đăng nhập (createAccountWithEmailAndPassword, signInWithEmailAndPassword, hoặc signInWithPopup).
  * @param {Object} [params.provider] - GoogleAuthProvider (nếu dùng Google).
  * @returns {Promise<Object>} - Thông tin người dùng.
  */
-export async function createUser(user) {
-    console.log('user', user);
+export async function createAccount(account) {
+    console.log('account', account);
 
     try {
-        // Kiểm tra nếu user đã tồn tại trong Firestore
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
+        // Kiểm tra nếu account đã tồn tại trong Firestore
+        const accountDocRef = doc(db, 'accounts', account.uid);
+        const accountDoc = await getDoc(accountDocRef);
 
-        if (userDoc.exists()) {
-            console.log('User already exists:', user.uid);
-            return userDoc.data();
+        if (accountDoc.exists()) {
+            console.log('Account already exists:', account.uid);
+            return accountDoc.data();
         }
 
-        // Nếu user chưa tồn tại, tạo mới
-        const providerId = user.providerData[0]?.providerId.includes('google') ? 'Google' : 'Email';
-        const userData = {
-            userId: user.uid,
-            displayName: user.displayName || '', // Google sẽ có displayName
-            email: user.email,
+        // Nếu account chưa tồn tại, tạo mới
+        const providerId = account.providerData[0]?.providerId.includes('google') ? 'Google' : 'Email';
+        const accountData = {
+            accountId: account.uid,
+            displayName: account.displayName || '', // Google sẽ có displayName
+            email: account.email,
             createdDate: new Date(), // Dùng ngày hiện tại thay vì serverTimestamp()
             modifiedDate: new Date(), // Dùng ngày hiện tại thay vì serverTimestamp()
             provider: providerId,
@@ -48,44 +48,44 @@ export async function createUser(user) {
         };
 
         // Lưu vào Firestore
-        await setDoc(userDocRef, userData);
+        await setDoc(accountDocRef, accountData);
 
-        console.log('User created successfully:', userData);
-        return userData;
+        console.log('Account created successfully:', accountData);
+        return accountData;
     } catch (error) {
-        console.error('Error creating user:', error.message);
+        console.error('Error creating account:', error.message);
         throw error;
     }
 }
 
 /**
  * Cập nhật thông tin người dùng
- * @param {Object} user - Dữ liệu người dùng cần cập nhật.
+ * @param {Object} account - Dữ liệu người dùng cần cập nhật.
  */
-export const updateUser = async (user) => {
+export const updateAccount = async (account) => {
     try {
-        console.log('user', user);
+        console.log('account', account);
 
-        if (!user.id || typeof user.id !== 'string') {
-            throw new Error('Invalid user ID');
+        if (!account.id || typeof account.id !== 'string') {
+            throw new Error('Invalid account ID');
         }
 
         // Loại bỏ các field có giá trị undefined
-        const sanitizedUser = Object.fromEntries(Object.entries(user).filter(([_, value]) => value !== undefined));
+        const sanitizedAccount = Object.fromEntries(Object.entries(account).filter(([_, value]) => value !== undefined));
 
-        const userDoc = doc(db, 'users', user.id);
-        await updateDoc(userDoc, sanitizedUser);
+        const accountDoc = doc(db, 'accounts', account.id);
+        await updateDoc(accountDoc, sanitizedAccount);
 
-        // Lấy dữ liệu user hiện tại từ Vuex store
-        const currentUser = store.getters.getUser || {};
+        // Lấy dữ liệu account hiện tại từ Vuex store
+        const currentAccount = store.getters.getAccount || {};
 
         // Chỉ cập nhật các field đã thay đổi
-        const updatedUser = { ...currentUser, ...sanitizedUser };
+        const updatedAccount = { ...currentAccount, ...sanitizedAccount };
 
         // Lưu lại dữ liệu đã cập nhật vào Vuex store
-        store.dispatch('setUser', updatedUser);
+        store.dispatch('setAccount', updatedAccount);
 
-        console.log('User updated successfully!');
+        console.log('Account updated successfully!');
     } catch (error) {
         console.error('Lỗi:', error);
         throw error;
@@ -94,22 +94,22 @@ export const updateUser = async (user) => {
 
 /**
  * Lấy thông tin người dùng theo ID
- * @param {String} userId - ID của người dùng cần lấy thông tin.
+ * @param {String} accountId - ID của người dùng cần lấy thông tin.
  * @returns {Promise<Object>} - Thông tin người dùng.
  */
-export const getUserById = async (userId) => {
+export const getAccountById = async (accountId) => {
     try {
-        const userDocRef = doc(db, 'users', userId);
-        const userDoc = await getDoc(userDocRef);
+        const accountDocRef = doc(db, 'accounts', accountId);
+        const accountDoc = await getDoc(accountDocRef);
 
-        if (userDoc.exists()) {
-            console.log('User data:', userDoc.data());
-            return userDoc.data();
+        if (accountDoc.exists()) {
+            console.log('Account data:', accountDoc.data());
+            return accountDoc.data();
         } else {
-            throw new Error('User not found');
+            throw new Error('Account not found');
         }
     } catch (error) {
-        console.error('Error getting user:', error.message);
+        console.error('Error getting account:', error.message);
         throw error;
     }
-};  
+};
