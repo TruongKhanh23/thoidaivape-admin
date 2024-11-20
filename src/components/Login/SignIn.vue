@@ -1,9 +1,9 @@
 <template>
     <FloatingConfigurator />
-    <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
+    <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen overflow-hidden">
         <div class="flex flex-col items-center justify-center">
             <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
-                <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+                <div class="w-full bg-surface-0 dark:bg-surface-900 py-10 px-8 sm:px-10" style="border-radius: 53px">
                     <div class="flex flex-col items-center justify-center text-center mb-8">
                         <img src="/img/original_logo.png" alt="logo" class="w-20 h-20" />
                         <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Đăng nhập</div>
@@ -36,27 +36,25 @@
             </div>
         </div>
     </div>
-    <div class="card">
-        <Dialog header="Khôi phục mật khẩu" v-model:visible="isOpenForgotPassword" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
-            <div class="space-y-2">
-                <label for="resetEmail" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">Email</label>
-                <InputText id="resetEmail" type="text" placeholder="Nhập email của bạn" class="w-full md:w-[30rem] mb-8" v-model="resetEmail" />
+    <Dialog header="Khôi phục mật khẩu" v-model:visible="isOpenForgotPassword" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+        <div class="space-y-2">
+            <label for="resetEmail" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">Email</label>
+            <InputText id="resetEmail" type="text" placeholder="Nhập email của bạn" class="w-full mb-8" v-model="resetEmail" />
 
-                <div class="font-semibold">
-                    <p v-if="resetPasswordMessage" class="text-blue-500">
-                        {{ resetPasswordMessage }}
-                    </p>
-                    <p v-if="resetPasswordError" class="text-red-500">
-                        {{ resetPasswordError }}
-                    </p>
-                </div>
+            <div class="font-semibold">
+                <p v-if="resetPasswordMessage" class="text-blue-500">
+                    {{ resetPasswordMessage }}
+                </p>
+                <p v-if="resetPasswordError" class="text-red-500">
+                    {{ resetPasswordError }}
+                </p>
             </div>
+        </div>
 
-            <template #footer>
-                <Button label="Yêu cầu khôi phục" @click="resetPassword" />
-            </template>
-        </Dialog>
-    </div>
+        <template #footer>
+            <Button label="Yêu cầu khôi phục" @click="resetPassword" />
+        </template>
+    </Dialog>
 </template>
 
 <script setup>
