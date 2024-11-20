@@ -178,11 +178,24 @@ const getCurrentUser = () => {
     });
 };
 
+const extractPaths = (routes) => {
+    let paths = [];
+    routes.forEach((route) => {
+        if (route.path) {
+            paths.push(route.path);
+        }
+        if (route.children) {
+            paths = paths.concat(extractPaths(route.children));
+        }
+    });
+    return paths;
+};
+
 router.beforeEach(async (to, from, next) => {
     const user = await getCurrentUser();
 
     // Kiểm tra nếu đường dẫn không nằm trong danh sách đã định sẵn
-    const validPaths = routes.map((route) => route.path);
+    const validPaths = extractPaths(routes);
 
     if (!validPaths.includes(to.path) && to.path !== '/admin/login') {
         next('/admin/login');

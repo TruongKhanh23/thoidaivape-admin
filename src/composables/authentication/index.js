@@ -8,7 +8,7 @@ export const handleAuthenticationSuccess = async (account, router) => {
 
     await createAccount(account);
 
-    router.push("/").then(() => {
+    router.push('/').then(() => {
         window.scrollTo(0, 0);
     });
 };
@@ -38,7 +38,7 @@ export async function createAccount(account) {
         // Nếu account chưa tồn tại, tạo mới
         const providerId = account.providerData[0]?.providerId.includes('google') ? 'Google' : 'Email';
         const accountData = {
-            accountId: account.uid,
+            uid: account.uid,
             displayName: account.displayName || '', // Google sẽ có displayName
             email: account.email,
             createdDate: new Date(), // Dùng ngày hiện tại thay vì serverTimestamp()
@@ -66,14 +66,14 @@ export const updateAccount = async (account) => {
     try {
         console.log('account', account);
 
-        if (!account.id || typeof account.id !== 'string') {
+        if (!account.uid || typeof account.uid !== 'string') {
             throw new Error('Invalid account ID');
         }
 
         // Loại bỏ các field có giá trị undefined
         const sanitizedAccount = Object.fromEntries(Object.entries(account).filter(([_, value]) => value !== undefined));
 
-        const accountDoc = doc(db, 'accounts', account.id);
+        const accountDoc = doc(db, 'accounts', account.uid);
         await updateDoc(accountDoc, sanitizedAccount);
 
         // Lấy dữ liệu account hiện tại từ Vuex store

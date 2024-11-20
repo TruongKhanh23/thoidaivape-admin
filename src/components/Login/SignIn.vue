@@ -77,33 +77,33 @@ const rememberMe = ref(false);
 const errorMessage = ref('');
 const resetPasswordMessage = ref('');
 const isOpenForgotPassword = ref(false);
-const resetEmail = ref('')
-const resetPasswordError = ref('')
+const resetEmail = ref('');
+const resetPasswordError = ref('');
 
 onMounted(async () => {
-  const savedEmail = localStorage.getItem('email')
-  const savedPassword = localStorage.getItem('password')
-  const savedRememberMe = localStorage.getItem('rememberMe') === 'true'
+    const savedEmail = localStorage.getItem('email');
+    const savedPassword = localStorage.getItem('password');
+    const savedRememberMe = localStorage.getItem('rememberMe') === 'true';
 
-  if (savedRememberMe && savedEmail && savedPassword) {
-    email.value = savedEmail
-    password.value = savedPassword
-    rememberMe.value = savedRememberMe
-  }
-})
+    if (savedRememberMe && savedEmail && savedPassword) {
+        email.value = savedEmail;
+        password.value = savedPassword;
+        rememberMe.value = savedRememberMe;
+    }
+});
 
 const resetPassword = async () => {
-  const auth = getAuth()
-  try {
-    await sendPasswordResetEmail(auth, resetEmail.value)
-    resetPasswordMessage.value = 'Email khôi phục mật khẩu đã được gửi tới địa chỉ email của bạn!'
-    resetPasswordError.value = ''
-  } catch (error) {
-    console.error('Có lỗi trong quá trình gửi email khôi phục!', error)
-    resetPasswordError.value = 'Có lỗi trong quá trình gửi email khôi phục! Vui lòng thử lại sau.'
-    resetPasswordMessage.value = ''
-  }
-}
+    const auth = getAuth();
+    try {
+        await sendPasswordResetEmail(auth, resetEmail.value);
+        resetPasswordMessage.value = 'Email khôi phục mật khẩu đã được gửi tới địa chỉ email của bạn!';
+        resetPasswordError.value = '';
+    } catch (error) {
+        console.error('Có lỗi trong quá trình gửi email khôi phục!', error);
+        resetPasswordError.value = 'Có lỗi trong quá trình gửi email khôi phục! Vui lòng thử lại sau.';
+        resetPasswordMessage.value = '';
+    }
+};
 
 function openForgotPassword() {
     isOpenForgotPassword.value = true;

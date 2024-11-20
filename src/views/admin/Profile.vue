@@ -6,7 +6,7 @@
 
             <!-- Avatar -->
             <div class="flex justify-center">
-                <Avatar :label="editableAccount.displayName?.charAt(0)?.toUpperCase()" class="mr-2" size="xlarge" shape="circle"></Avatar>
+                <Avatar :label="account.displayName ? account.displayName?.charAt(0)?.toUpperCase() : account.email?.charAt(0)?.toUpperCase()" class="mr-2" size="xlarge" shape="circle"></Avatar>
             </div>
             <SignOut />
 
@@ -48,7 +48,7 @@ import { getAccountById, updateAccount } from '@/composables/authentication/inde
 // Dữ liệu người dùng
 const account = computed(() => store.getters.getAccount);
 const editableAccount = reactive({
-    id: account.value.accountId ?? account.value.uid,
+    uid: account.value.uid,
     displayName: account.value.displayName,
     email: account.value.email
 });
