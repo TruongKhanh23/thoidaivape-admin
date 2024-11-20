@@ -1,5 +1,5 @@
 export const state = {
   count: 0,
-  user: {},
+  account: {},
   isLoggedIn: false
 }

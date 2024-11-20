@@ -6,7 +6,7 @@ import { createStore } from 'vuex';
 import VuexPersist from 'vuex-persist';
 
 const vuexPersist = new VuexPersist({
-    key: 'thoidaivape',
+    key: 'thoidaivape-admin',
     storage: localStorage
 });
 
