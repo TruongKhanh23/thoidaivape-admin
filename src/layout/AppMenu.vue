@@ -161,7 +161,11 @@ const model = ref([
     //dashboard.value,
     {
         label: 'Manage',
-        items: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/Users' }]
+        items: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/users' },]
+    },
+    {
+        label: 'Admin',
+        items: [{ label: 'Accounts', icon: 'pi pi-fw pi-home', to: '/admin/accounts' },]
     },
     //others.value,
     //uiComponents.value,
