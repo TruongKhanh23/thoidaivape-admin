@@ -12,18 +12,18 @@
                         <span class="text-muted-color font-medium">Thời đại Vape</span>
                     </div>
 
-                    <div>
+                    <div class="space-y-4">
                         <label for="email1"
-                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
+                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium">Email</label>
                         <InputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8"
                             v-model="email" />
 
                         <label for="password1"
-                            class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                            class="block text-surface-900 dark:text-surface-0 font-medium text-xl">Password</label>
                         <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true"
-                            class="mb-4" fluid :feedback="false"></Password>
+                            class="" fluid :feedback="false"></Password>
 
-                        <div class="flex items-center justify-between mt-2 mb-8 gap-8">
+                        <div class="flex items-center justify-between gap-8">
                             <div class="flex items-center">
                                 <Checkbox v-model="rememberMe" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Lưu mật khẩu</label>
@@ -35,7 +35,8 @@
                             {{ errorMessage }}
                         </p>
                         <Button label="Đăng nhập" class="w-full" @click="login"></Button>
-                        <p class="text-muted-color font-medium w-full text-center my-2">Chưa có tài khoản?</p>
+                        <SignInWithGoogle @action:updateErrorMessage="handleErrorMessage" />
+                        <p class="font-semibold w-full text-center">Chưa có tài khoản?</p>
                         <Button label="Đăng ký" class="w-full" @click="updateLoginType()"></Button>
                     </div>
                 </div>
@@ -50,6 +51,7 @@ import { handleAuthenticationSuccess } from '@/composables/authentication/index'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { defineEmits, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import SignInWithGoogle from './SignInWithGoogle.vue';
 
 const router = useRouter()
 
@@ -99,7 +101,9 @@ const login = async () => {
         }
     }
 }
-
+function handleErrorMessage(value) {
+  errorMessage.value = value
+}
 </script>
 
 <style scoped>

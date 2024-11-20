@@ -12,21 +12,22 @@
                         <span class="text-muted-color font-medium">Thời đại Vape</span>
                     </div>
 
-                    <div>
+                    <div class="space-y-4">
                         <label for="email1"
-                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
+                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium">Email</label>
                         <InputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8"
                             v-model="email" />
 
                         <label for="password1"
-                            class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                            class="block text-surface-900 dark:text-surface-0 font-medium text-xl">Password</label>
                         <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true"
-                            class="mb-4" fluid :feedback="false"></Password>
+                            fluid :feedback="false"></Password>
                         <p v-if="errorMessage" class="text-red-500">
                             {{ errorMessage }}
                         </p>
                         <Button label="Đăng ký" class="w-full" @click="register"></Button>
-                        <p class="text-muted-color font-medium text-center my-2">Đã có tài khoản?</p>
+                        <SignInWithGoogle @action:updateErrorMessage="handleErrorMessage" />
+                        <p class="font-semibold text-center">Đã có tài khoản?</p>
                         <Button label="Đăng nhập" class="w-full" @click="updateLoginType()"></Button>
                     </div>
                 </div>
@@ -41,6 +42,7 @@ import { ref, defineEmits } from 'vue'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import { useRouter } from 'vue-router'
 import { handleAuthenticationSuccess } from '@/composables/authentication/index'
+import SignInWithGoogle from './SignInWithGoogle.vue';
 
 const router = useRouter()
 
@@ -83,6 +85,10 @@ const register = () => {
 
 function updateLoginType() {
     emit('action:updateLoginType', 'signIn')
+}
+
+function handleErrorMessage(value) {
+  errorMessage.value = value
 }
 </script>
 
