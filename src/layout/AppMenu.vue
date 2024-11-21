@@ -11,10 +11,10 @@
 import { ref, computed } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
-import store from "@/store"
+import store from '@/store';
 
-const account = computed(() => store.getters.getAccount)
-const rights = computed(() => account.value.rights)
+const account = computed(() => store.getters.getAccount);
+const rights = computed(() => account.value.rights);
 
 const others = ref({
     label: 'Sample',
@@ -162,13 +162,13 @@ const admin = ref({
     items: []
 });
 
-const accountPage = { label: 'Accounts', icon: 'pi pi-fw pi-home', to: '/admin/accounts' }
-if(rights.value.includes("admin")){
-    admin.value.items.push(accountPage)
+const accountPage = { label: 'Accounts', icon: 'pi pi-fw pi-home', to: '/admin/accounts' };
+if (rights.value.includes('admin')) {
+    admin.value.items.push(accountPage);
 }
 
 const model = ref([
-    //dashboard.value,
+    dashboard.value,
     {
         label: 'Manage',
         items: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/users' }]

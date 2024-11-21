@@ -1,8 +1,8 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import store from "@/store"
-import { computed } from "vue"
+import store from '@/store';
+import { computed } from 'vue';
 
 const routes = [
     {
@@ -14,8 +14,8 @@ const routes = [
         children: [
             {
                 path: '/',
-                name: 'user',
-                component: () => import('@/views/admin/Users.vue')
+                name: 'home',
+                component: () => import('@/views/admin/Home.vue')
             },
             {
                 path: '/admin/accounts',
@@ -196,7 +196,7 @@ const extractPaths = (routes) => {
     return paths;
 };
 
-const accountMoreInfo = computed(() => store.getters.getAccount)
+const accountMoreInfo = computed(() => store.getters.getAccount);
 
 router.beforeEach(async (to, from, next) => {
     let account = await getCurrentAccount();
@@ -214,7 +214,7 @@ router.beforeEach(async (to, from, next) => {
     if (!validPaths.includes(to.path) && to.path !== '/admin/login') {
         return next('/admin/login');
     }
-    console.log("account", account);
+    console.log('account', account);
 
     // Kiểm tra xác thực
     if (to.matched.some((record) => record.meta.requiresAuth)) {
