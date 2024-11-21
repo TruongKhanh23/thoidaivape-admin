@@ -2,23 +2,31 @@
     <div>
         <div class="card">
             <div class="font-semibold text-xl">Danh sách khách hàng</div>
-            <DataTable ref="dt" v-model:selection="selectedUsers" :value="users" :loading="loading" dataKey="id"
-                :paginator="true" :rows="pageSize" :totalRecords="totalRecords" :first="currentPage * pageSize"
+            <DataTable
+                ref="dt"
+                v-model:selection="selectedUsers"
+                :value="users"
+                :loading="loading"
+                dataKey="id"
+                :paginator="true"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :first="currentPage * pageSize"
                 :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[1, 5, 10, 25]"
                 currentPageReportTemplate="Đang hiển thị {first} - {last} từ {totalRecords} khách hàng"
-                @page="onPageChange">
+                @page="onPageChange"
+            >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Tìm kiếm..."
-                                @input="onFilterChange" />
+                            <InputText v-model="filters['global'].value" placeholder="Tìm kiếm..." @input="onFilterChange" />
                         </IconField>
-                        <Button label="Xuất CSV" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
+                        <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
                     </div>
                 </template>
 
@@ -28,8 +36,7 @@
                 <Column field="provider" header="Loại tài khoản" sortable style="min-width: 10rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem" header="Hành động">
                     <template #body="slotProps">
-                        <Button icon="pi pi-eye" outlined rounded class="mr-2"
-                            @click="viewUserDetails(slotProps.data)" />
+                        <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="viewUserDetails(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -38,8 +45,7 @@
                 <div class="flex flex-col gap-6">
                     <div>
                         <label for="displayName" class="block font-bold mb-3">Họ và tên</label>
-                        <InputText id="displayName" v-model.trim="user.displayName" required="true" autofocus disabled
-                            fluid />
+                        <InputText id="displayName" v-model.trim="user.displayName" required="true" autofocus disabled fluid />
                     </div>
 
                     <div>
@@ -74,7 +80,6 @@
                     </div>
                 </div>
             </Dialog>
-
         </div>
     </div>
 </template>
@@ -95,16 +100,16 @@ const filters = ref({
 });
 const loading = ref(false);
 const currentPage = ref(0);
-const pageSize = ref(10);  // Set page size to 1 for testing pagination
+const pageSize = ref(10); // Set page size to 1 for testing pagination
 const totalRecords = ref(0);
-const lastVisible = ref(null);  // Store last visible document for pagination
+const lastVisible = ref(null); // Store last visible document for pagination
 
 // Functions
 async function fetchUsers() {
     loading.value = true;
     const { users: data, lastVisible: newLastVisible, totalRecords: total } = await getPaginatedUsers(lastVisible.value, 50, filters.value.global.value);
     users.value = data;
-    lastVisible.value = newLastVisible;  // Update lastVisible for next page
+    lastVisible.value = newLastVisible; // Update lastVisible for next page
     totalRecords.value = total;
     loading.value = false;
 }
