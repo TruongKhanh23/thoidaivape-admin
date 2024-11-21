@@ -27,8 +27,23 @@ const bannerRoles = ['create_banner', 'read_banner', 'update_banner', 'delete_ba
 
 const newsRoles = ['create_news', 'read_news', 'update_news', 'delete_news'];
 
-// Gom tất cả vào một mảng lớn
-const roles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles];
+// Gom tất cả roles lại
+const allRoles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles];
+
+// Hàm viết hoa chữ cái đầu mỗi từ
+const capitalizeWords = (str) =>
+    str
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+// Chuyển đổi roles thành cấu trúc { name, code }
+const roles = allRoles.map((role) => ({
+    name: capitalizeWords(role),
+    code: role
+}));
+
+console.log(roles);
 
 const getAllAccounts = async () => {
     loading.value = true;
@@ -41,7 +56,7 @@ const getAllAccounts = async () => {
 let searchCache = {}; // Khởi tạo cache tìm kiếm
 
 const getPaginatedAccounts = async () => {
-    const maxAccounts = 50
+    const maxAccounts = 50;
     const searchQuery = filters.value.global.value;
     const accountsRef = collection(db, 'accounts');
     const cacheKey = searchQuery.trim() + (lastVisible.value ? lastVisible.value.id : '');
@@ -51,37 +66,25 @@ const getPaginatedAccounts = async () => {
     // Kiểm tra cache trước
     if (isCached) {
         updateStateFromCache(cacheKey);
-        return
+        return;
     }
 
     // Tạo query cơ bản
-    let accountsQuery = query(
-        accountsRef,
-        where('rights', '!=', ['admin']),
-        orderBy('createdDate', 'desc'),
-        limit(maxAccounts)
-    );
+    let accountsQuery = query(accountsRef, where('rights', '!=', ['admin']), orderBy('createdDate', 'desc'), limit(maxAccounts));
 
     // Thêm phân trang nếu có lastVisible
     if (lastVisible.value) {
-        accountsQuery = query(
-            accountsQuery,
-            startAfter(lastVisible.value)
-        );
+        accountsQuery = query(accountsQuery, startAfter(lastVisible.value));
     }
 
     // Thêm điều kiện tìm kiếm nếu có từ khóa
     if (isSearching) {
-        accountsQuery = query(
-            accountsQuery,
-            where('displayName', '>=', searchQuery),
-            where('displayName', '<=', searchQuery + '\uf8ff')
-        );
+        accountsQuery = query(accountsQuery, where('displayName', '>=', searchQuery), where('displayName', '<=', searchQuery + '\uf8ff'));
     }
 
     // Thực hiện truy vấn
     const querySnapshot = await getDocs(accountsQuery);
-    const accounts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const accounts = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
 
     // Cập nhật cache
@@ -90,7 +93,7 @@ const getPaginatedAccounts = async () => {
     // Cập nhật trạng thái
     updateState(accounts, lastDoc);
     return true;
-}
+};
 
 // Hàm cập nhật trạng thái từ cache
 function updateStateFromCache(cacheKey) {
@@ -111,7 +114,6 @@ function updateState(accountsData, lastDoc) {
     lastVisible.value = lastDoc;
     totalRecords.value = totalRecords;
 }
-
 
 const saveAccount = async () => {
     if (account.value.id) {
@@ -141,5 +143,23 @@ function onPageChange(event) {
     getPaginatedAccounts(); // Gọi lại fetchUsers khi thay đổi trang
 }
 
-
-export { onPageChange, currentPage, pageSize, totalRecords, lastVisible, loading, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, getAllAccounts, getPaginatedAccounts, saveAccount, deleteAccount, searchAccounts };
+export {
+    onPageChange,
+    currentPage,
+    pageSize,
+    totalRecords,
+    lastVisible,
+    loading,
+    accounts,
+    filters,
+    selectedAccounts,
+    accountDialog,
+    deleteAccountDialog,
+    account,
+    roles,
+    getAllAccounts,
+    getPaginatedAccounts,
+    saveAccount,
+    deleteAccount,
+    searchAccounts
+};
