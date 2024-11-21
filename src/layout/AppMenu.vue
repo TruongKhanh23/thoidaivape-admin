@@ -1,6 +1,6 @@
 <template>
     <ul class="layout-menu">
-        <template v-for="(item, i) in model" :key="item">
+        <template v-for="(item, i) in filteredModel" :key="item">
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
         </template>
@@ -11,10 +11,10 @@
 import { ref, computed } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
-import store from "@/store"
+import store from '@/store';
 
-const account = computed(() => store.getters.getAccount)
-const rights = computed(() => account.value.rights)
+const account = computed(() => store.getters.getAccount);
+const rights = computed(() => account.value?.rights || []);
 
 const others = ref({
     label: 'Sample',
@@ -152,34 +152,46 @@ const getStarted = ref({
     ]
 });
 
-const dashboard = ref({
-    label: 'Home',
-    items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
-});
-
-const admin = ref({
-    label: 'Admin',
-    items: []
-});
-
-const accountPage = { label: 'Accounts', icon: 'pi pi-fw pi-home', to: '/admin/accounts' }
-if(rights.value.includes("admin")){
-    admin.value.items.push(accountPage)
-}
-
 const model = ref([
-    //dashboard.value,
+    {
+        label: 'Home',
+        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
+    },
     {
         label: 'Manage',
-        items: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/users' }]
+        items: [{ label: 'Users', icon: 'pi pi-fw pi-user', to: '/admin/users', requiredRights: 'read_user' }]
     },
-    admin.value
+    {
+        label: 'Admin',
+        items: [{ label: 'Accounts', icon: 'pi pi-fw pi-briefcase', to: '/admin/accounts', requiredRights: 'admin' }]
+    }
     //others.value,
     //uiComponents.value,
     //pages.value,
     //subMenu.value,
     //getStarted.value
 ]);
+
+// Hàm lọc menu dựa trên quyền
+const filterMenu = (items) => {
+    return items
+        .filter((item) => {
+            // Nếu mục menu không yêu cầu quyền, luôn hiển thị
+            if (!item.requiredRights) return true;
+            // Nếu yêu cầu quyền, kiểm tra xem user có quyền hoặc là admin
+            return rights.value.includes(item.requiredRights) || rights.value.includes('admin');
+        })
+        .map((item) => {
+            // Lọc đệ quy nếu có các mục con
+            if (item.items) {
+                return { ...item, items: filterMenu(item.items) };
+            }
+            return item;
+        });
+};
+
+// Model menu sau khi lọc
+const filteredModel = computed(() => filterMenu(model.value));
 </script>
 
 <style lang="scss" scoped></style>
