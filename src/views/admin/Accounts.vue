@@ -3,16 +3,20 @@
         <div class="card">
             <div class="font-semibold text-xl">Danh sách quản trị viên</div>
             <DataTable
+                ref="dt"
                 v-model:selection="selectedAccounts"
                 :value="accounts"
                 :paginator="true"
-                :rows="10"
                 :loading="loading"
+                :rows="pageSize"
                 dataKey="id"
                 :filters="filters"
+                :first="currentPage * pageSize"
+                :totalRecords="totalRecords"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                 :rowsPerPageOptions="[5, 10, 25]"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+                currentPageReportTemplate="Đang hiển thị {first} - {last} từ {totalRecords} quản trị viên"
+                @page="onPageChange"
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
@@ -22,7 +26,10 @@
                             </InputIcon>
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." />
                         </IconField>
-                        <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedAccounts.length" @click="confirmDeleteSelected" />
+                        <div class="space-x-2">
+                            <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedAccounts.length" @click="confirmDeleteSelected" />
+                            <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
+                        </div>
                     </div>
                 </template>
 
@@ -30,7 +37,7 @@
                 <Column field="displayName" header="Họ và tên" sortable></Column>
                 <Column field="email" header="Email" sortable></Column>
                 <Column field="provider" header="Loại tài khoản" sortable></Column>
-                <Column :exportable="false" style="min-width: 12rem;" header="Hành động">
+                <Column :exportable="false" style="min-width: 12rem" header="Hành động">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" class="mr-2" @click="editAccount(slotProps.data)" />
                         <Button icon="pi pi-trash" class="text-red-500" @click="confirmDeleteAccount(slotProps.data)" />
@@ -70,43 +77,29 @@
     </div>
 </template>
 
-<script>
-import { accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, getPaginatedAccounts, saveAccount, deleteAccount, loading } from '@/composables/account';
+<script setup>
+import { ref } from 'vue';
+import { onPageChange, totalRecords, currentPage, pageSize, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, saveAccount, deleteAccount, loading, getPaginatedAccounts } from '@/composables/account';
 
-export default {
-    name: 'Account',
-    setup() {
-        getPaginatedAccounts();
+const dt = ref();
 
-        const editAccount = (selectedAccount) => {
-            accountDialog.value = true;
-            account.value = { ...selectedAccount };
-        };
+getPaginatedAccounts();
 
-        const confirmDeleteAccount = (selectedAccount) => {
-            deleteAccountDialog.value = true;
-            account.value = { ...selectedAccount };
-        };
-
-        const confirmDeleteSelected = () => {
-            selectedAccounts.value.forEach((acc) => deleteAccount(acc.id));
-        };
-
-        return {
-            loading,
-            accounts,
-            filters,
-            selectedAccounts,
-            accountDialog,
-            deleteAccountDialog,
-            account,
-            roles,
-            editAccount,
-            confirmDeleteAccount,
-            confirmDeleteSelected,
-            saveAccount,
-            deleteAccount
-        };
-    }
+const editAccount = (selectedAccount) => {
+    accountDialog.value = true;
+    account.value = { ...selectedAccount };
 };
+
+const confirmDeleteAccount = (selectedAccount) => {
+    deleteAccountDialog.value = true;
+    account.value = { ...selectedAccount };
+};
+
+const confirmDeleteSelected = () => {
+    selectedAccounts.value.forEach((acc) => deleteAccount(acc.id));
+};
+
+function exportCSV() {
+    dt.value.exportCSV();
+}
 </script>
