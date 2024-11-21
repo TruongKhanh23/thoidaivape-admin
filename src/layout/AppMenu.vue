@@ -8,16 +8,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
+import store from "@/store"
 
-const others = ref(
-    {
-        label: 'Sample',
-        items: [{ label: 'Firebase', icon: 'pi pi-fw pi-home', to: '/admin/firebase' }]
-    }
-)
+const account = computed(() => store.getters.getAccount)
+const rights = computed(() => account.value.rights)
+
+const others = ref({
+    label: 'Sample',
+    items: [{ label: 'Firebase', icon: 'pi pi-fw pi-home', to: '/admin/firebase' }]
+});
 const uiComponents = ref({
     label: 'UI Components',
     items: [
@@ -37,7 +39,7 @@ const uiComponents = ref({
         { label: 'Timeline', icon: 'pi pi-fw pi-calendar', to: '/uikit/timeline' },
         { label: 'Misc', icon: 'pi pi-fw pi-circle', to: '/uikit/misc' }
     ]
-})
+});
 
 const pages = ref({
     label: 'Pages',
@@ -86,7 +88,7 @@ const pages = ref({
             to: '/pages/empty'
         }
     ]
-})
+});
 
 const subMenu = ref({
     label: 'Hierarchy',
@@ -131,7 +133,7 @@ const subMenu = ref({
             ]
         }
     ]
-})
+});
 
 const getStarted = ref({
     label: 'Get Started',
@@ -148,29 +150,36 @@ const getStarted = ref({
             target: '_blank'
         }
     ]
-})
+});
 
-const dashboard = ref(
-    {
-        label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
-    }
-)
+const dashboard = ref({
+    label: 'Home',
+    items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
+});
+
+const admin = ref({
+    label: 'Admin',
+    items: []
+});
+
+const accountPage = { label: 'Accounts', icon: 'pi pi-fw pi-home', to: '/admin/accounts' }
+if(rights.value.includes("admin")){
+    admin.value.items.push(accountPage)
+}
 
 const model = ref([
     //dashboard.value,
     {
         label: 'Manage',
-        items: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/Users' }]
+        items: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/users' }]
     },
+    admin.value
     //others.value,
     //uiComponents.value,
     //pages.value,
     //subMenu.value,
     //getStarted.value
 ]);
-
-
 </script>
 
 <style lang="scss" scoped></style>
