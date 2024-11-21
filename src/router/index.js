@@ -216,7 +216,7 @@ router.beforeEach(async (to, from, next) => {
 
     // Kiểm tra quyền admin
     if (to.matched.some((record) => record.meta.requiredRights)) {
-        if (!account?.rights?.includes(to.meta.requiredRights)) {
+        if (!account?.rights?.includes(to.meta.requiredRights) && !account?.rights?.includes('admin')) {
             // Nếu không đủ quyền, điều hướng tới trang từ chối truy cập
             next('/auth/access');
         }
