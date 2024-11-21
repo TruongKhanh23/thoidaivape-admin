@@ -22,7 +22,7 @@
                             </InputIcon>
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." />
                         </IconField>
-                        <Button label="Delete" icon="pi pi-trash" :disabled="!selectedAccounts.length" @click="confirmDeleteSelected" />
+                        <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedAccounts.length" @click="confirmDeleteSelected" />
                     </div>
                 </template>
 
@@ -30,7 +30,7 @@
                 <Column field="displayName" header="Họ và tên" sortable></Column>
                 <Column field="email" header="Email" sortable></Column>
                 <Column field="provider" header="Loại tài khoản" sortable></Column>
-                <Column :exportable="false" style="min-width: 12rem">
+                <Column :exportable="false" style="min-width: 12rem;" header="Hành động">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" class="mr-2" @click="editAccount(slotProps.data)" />
                         <Button icon="pi pi-trash" class="text-red-500" @click="confirmDeleteAccount(slotProps.data)" />
@@ -54,17 +54,17 @@
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteAccountDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+        <Dialog v-model:visible="deleteAccountDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
                 <span v-if="account"
-                    >Are you sure you want to delete <b>{{ account.displayName }}</b
+                    >Bạn có chắc chắn muốn xóa <b>{{ account.displayName }}</b
                     >?</span
                 >
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteAccountDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteAccount(account.id)" />
+                <Button label="Không" icon="pi pi-times" text @click="deleteAccountDialog = false" />
+                <Button label="Có" icon="pi pi-check" @click="deleteAccount(account.id)" />
             </template>
         </Dialog>
     </div>

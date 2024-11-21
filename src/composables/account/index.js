@@ -9,59 +9,22 @@ const selectedAccounts = ref([]);
 const accountDialog = ref(false);
 const deleteAccountDialog = ref(false);
 const account = ref({});
-const userRoles = [
-    'read_user',
-];
+const userRoles = ['read_user'];
 
-const productRoles = [
-    'create_product',
-    'read_product',
-    'update_product',
-    'delete_product'
-];
+const productRoles = ['create_product', 'read_product', 'update_product', 'delete_product'];
 
-const orderRoles = [
-    'read_order',
-    'update_order',
-    'delete_order'
-];
+const orderRoles = ['read_order', 'update_order', 'delete_order'];
 
-const discountCodeRoles = [
-    'create_discountCode',
-    'read_discountCode',
-    'update_discountCode',
-    'delete_discountCode'
-];
+const discountCodeRoles = ['create_discountCode', 'read_discountCode', 'update_discountCode', 'delete_discountCode'];
 
-const contactRoles = [
-    'read_contact',
-];
+const contactRoles = ['read_contact'];
 
-const bannerRoles = [
-    'create_banner',
-    'read_banner',
-    'update_banner',
-    'delete_banner'
-];
+const bannerRoles = ['create_banner', 'read_banner', 'update_banner', 'delete_banner'];
 
-const newsRoles = [
-    'create_news',
-    'read_news',
-    'update_news',
-    'delete_news'
-];
+const newsRoles = ['create_news', 'read_news', 'update_news', 'delete_news'];
 
 // Gom tất cả vào một mảng lớn
-const roles = [
-    ...userRoles,
-    ...productRoles,
-    ...orderRoles,
-    ...discountCodeRoles,
-    ...contactRoles,
-    ...bannerRoles,
-    ...newsRoles
-];
-
+const roles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles];
 
 const getPaginatedAccounts = async () => {
     loading.value = true;

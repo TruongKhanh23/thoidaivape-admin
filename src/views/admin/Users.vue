@@ -26,7 +26,7 @@
                 <Column field="email" header="Email" sortable style="min-width: 20rem"></Column>
                 <Column field="phoneNumber" header="Số điện thoại" sortable style="min-width: 15rem"></Column>
                 <Column field="provider" header="Loại tài khoản" sortable style="min-width: 10rem"></Column>
-                <Column :exportable="false" style="min-width: 12rem">
+                <Column :exportable="false" style="min-width: 12rem" header="Hành động">
                     <template #body="slotProps">
                         <Button icon="pi pi-eye" outlined rounded class="mr-2"
                             @click="viewUserDetails(slotProps.data)" />
