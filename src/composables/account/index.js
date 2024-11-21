@@ -1,119 +1,57 @@
-import { db } from '@/firebaseConfig'; // Update with your Firebase config file path
-import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 
+const loading = ref(false);
 const accounts = ref([]);
-const searchTerm = ref('');
-const currentAccount = ref({
-    name: '',
-    email: '',
-    permissions: [],
-    role: 'admin'
-});
-const showAccountDialog = ref(false);
-const isEditMode = ref(false);
+const filters = ref({ global: { value: '' } });
+const selectedAccounts = ref([]);
+const accountDialog = ref(false);
+const deleteAccountDialog = ref(false);
+const account = ref({});
+const userRoles = ['read_user'];
 
-const permissions = [
-    'create_user',
-    'read_user',
-    'update_user',
-    'delete_user',
-    'create_product',
-    'read_product',
-    'update_product',
-    'delete_product',
-    'create_order',
-    'read_order',
-    'update_order',
-    'delete_order',
-    'create_discountCode',
-    'read_discountCode',
-    'update_discountCode',
-    'delete_discountCode',
-    'create_contact',
-    'read_contact',
-    'update_contact',
-    'delete_contact',
-    'create_banner',
-    'read_banner',
-    'update_banner',
-    'delete_banner',
-    'create_news',
-    'read_news',
-    'update_news',
-    'delete_news'
-];
+const productRoles = ['create_product', 'read_product', 'update_product', 'delete_product'];
 
-async function fetchAccounts() {
-    const querySnapshot = await getDocs(collection(db, 'accounts'));
-    accounts.value = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-}
+const orderRoles = ['read_order', 'update_order', 'delete_order'];
 
-function openNewAccountDialog() {
-    currentAccount.value = {
-        name: '',
-        email: '',
-        permissions: [],
-        role: 'admin'
-    };
-    isEditMode.value = false;
-    showAccountDialog.value = true;
-}
+const discountCodeRoles = ['create_discountCode', 'read_discountCode', 'update_discountCode', 'delete_discountCode'];
 
-function closeAccountDialog() {
-    showAccountDialog.value = false;
-}
+const contactRoles = ['read_contact'];
 
-async function saveAccount() {
-    if (isEditMode.value) {
-        const accountRef = doc(db, 'accounts', currentAccount.value.id);
-        await updateDoc(accountRef, currentAccount.value);
+const bannerRoles = ['create_banner', 'read_banner', 'update_banner', 'delete_banner'];
+
+const newsRoles = ['create_news', 'read_news', 'update_news', 'delete_news'];
+
+// Gom tất cả vào một mảng lớn
+const roles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles];
+
+const getPaginatedAccounts = async () => {
+    loading.value = true;
+    const q = query(collection(db, 'accounts'), where('rights', '!=', ['admin']));
+    const querySnapshot = await getDocs(q);
+    accounts.value = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+    loading.value = false;
+};
+
+const saveAccount = async () => {
+    if (account.value.id) {
+        await updateDoc(doc(db, 'accounts', account.value.id), account.value);
     } else {
-        await addDoc(collection(db, 'accounts'), currentAccount.value);
+        await addDoc(collection(db, 'accounts'), account.value);
     }
-    await fetchAccounts();
-    closeAccountDialog();
-}
+    accountDialog.value = false;
+    await getPaginatedAccounts();
+};
 
-function editAccount(account) {
-    currentAccount.value = { ...account };
-    isEditMode.value = true;
-    showAccountDialog.value = true;
-}
+const deleteAccount = async (id) => {
+    await deleteDoc(doc(db, 'accounts', id));
+    deleteAccountDialog.value = false;
+    await getPaginatedAccounts();
+};
 
-async function deleteAccount(accountId) {
-    const accountRef = doc(db, 'accounts', accountId);
-    await deleteDoc(accountRef);
-    await fetchAccounts();
-}
+const searchAccounts = (query) => {
+    filters.value.global.value = query;
+};
 
-function searchAccounts() {
-    return accounts.value.filter((account) => account.name.toLowerCase().includes(searchTerm.value.toLowerCase()));
-}
-
-const filteredAccounts = computed(() => {
-    if (searchTerm.value.trim()) {
-        return searchAccounts();
-    }
-    return accounts.value;
-});
-
-fetchAccounts();
-
-export function useAccount() {
-    return {
-        accounts,
-        searchTerm,
-        filteredAccounts,
-        currentAccount,
-        showAccountDialog,
-        isEditMode,
-        permissions,
-        openNewAccountDialog,
-        closeAccountDialog,
-        saveAccount,
-        editAccount,
-        deleteAccount,
-        searchAccounts
-    };
-}
+export { loading, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, getPaginatedAccounts, saveAccount, deleteAccount, searchAccounts };

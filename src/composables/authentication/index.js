@@ -3,10 +3,9 @@ import store from '@/store';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 export const handleAuthenticationSuccess = async (account, router) => {
-    store.dispatch('setAccount', account);
+    const currrentAccount = await createAccount(account);
+    store.dispatch('setAccount', currrentAccount);
     store.dispatch('setIsLoggedIn', true);
-
-    await createAccount(account);
 
     router.push('/').then(() => {
         window.scrollTo(0, 0);

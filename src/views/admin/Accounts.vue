@@ -1,99 +1,112 @@
 <template>
-    <div class="p-6">
-        <h1 class="text-xl font-bold mb-4">Manage Accounts</h1>
+    <div>
+        <div class="card">
+            <div class="font-semibold text-xl">Danh sách quản trị viên</div>
+            <DataTable
+                v-model:selection="selectedAccounts"
+                :value="accounts"
+                :paginator="true"
+                :rows="10"
+                :loading="loading"
+                dataKey="id"
+                :filters="filters"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                :rowsPerPageOptions="[5, 10, 25]"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+            >
+                <template #header>
+                    <div class="flex flex-wrap gap-2 items-center justify-between">
+                        <IconField>
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+                            <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." />
+                        </IconField>
+                        <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedAccounts.length" @click="confirmDeleteSelected" />
+                    </div>
+                </template>
 
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-2">
-                <input type="text" v-model="searchTerm" placeholder="Search by name..."
-                    class="p-2 border border-gray-300 rounded-md" />
-                <button @click="searchAccounts" class="bg-blue-500 text-white px-4 py-2 rounded-md">
-                    Search
-                </button>
-            </div>
-            <button @click="openNewAccountDialog" class="bg-green-500 text-white px-4 py-2 rounded-md">
-                Create New Account
-            </button>
+                <Column selectionMode="multiple" style="width: 3rem"></Column>
+                <Column field="displayName" header="Họ và tên" sortable></Column>
+                <Column field="email" header="Email" sortable></Column>
+                <Column field="provider" header="Loại tài khoản" sortable></Column>
+                <Column :exportable="false" style="min-width: 12rem;" header="Hành động">
+                    <template #body="slotProps">
+                        <Button icon="pi pi-pencil" class="mr-2" @click="editAccount(slotProps.data)" />
+                        <Button icon="pi pi-trash" class="text-red-500" @click="confirmDeleteAccount(slotProps.data)" />
+                    </template>
+                </Column>
+            </DataTable>
         </div>
 
-        <table class="table-auto w-full text-left border-collapse border border-gray-300">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="px-4 py-2 border">Name</th>
-                    <th class="px-4 py-2 border">Email</th>
-                    <th class="px-4 py-2 border">Role</th>
-                    <th class="px-4 py-2 border">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="account in filteredAccounts" :key="account.id" class="hover:bg-gray-50">
-                    <td class="px-4 py-2 border">{{ account.name }}</td>
-                    <td class="px-4 py-2 border">{{ account.email }}</td>
-                    <td class="px-4 py-2 border">{{ account.role }}</td>
-                    <td class="px-4 py-2 border">
-                        <button @click="editAccount(account)"
-                            class="bg-yellow-500 text-white px-2 py-1 rounded-md mr-2">
-                            Edit
-                        </button>
-                        <button @click="deleteAccount(account.id)" class="bg-red-500 text-white px-2 py-1 rounded-md">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- Account Dialog -->
-        <div v-if="showAccountDialog" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-6 rounded-md w-1/2">
-                <h2 class="text-lg font-bold mb-4">{{ isEditMode ? 'Edit Account' : 'Create New Account' }}</h2>
-                <div class="flex flex-col gap-4">
-                    <div>
-                        <label class="block font-medium">Name</label>
-                        <input type="text" v-model="currentAccount.name"
-                            class="p-2 border border-gray-300 rounded-md w-full" />
+        <Dialog v-model:visible="accountDialog" :header="account.id ? 'Phân quyền' : 'New Account'" modal>
+            <div class="p-fluid space-y-4 text-xl mb-8">
+                <div class="grid grid-cols-4 gap-8">
+                    <div v-for="role in roles" :key="role" class="col-span-1">
+                        <Checkbox v-model="account.rights" :value="role" class="mr-2" />
+                        <label for="rights">{{ role }}</label>
                     </div>
-                    <div>
-                        <label class="block font-medium">Email</label>
-                        <input type="email" v-model="currentAccount.email"
-                            class="p-2 border border-gray-300 rounded-md w-full" />
-                    </div>
-                    <div>
-                        <h3 class="font-medium mb-2">Assign Permissions</h3>
-                        <div v-for="permission in permissions" :key="permission" class="flex items-center gap-2">
-                            <input type="checkbox" :id="permission" v-model="currentAccount.permissions"
-                                :value="permission" />
-                            <label :for="permission">{{ permission }}</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button @click="closeAccountDialog" class="bg-gray-500 text-white px-4 py-2 rounded-md">
-                        Cancel
-                    </button>
-                    <button @click="saveAccount" class="bg-blue-500 text-white px-4 py-2 rounded-md">
-                        Save
-                    </button>
                 </div>
             </div>
-        </div>
+            <template #footer>
+                <Button label="Hủy" @click="accountDialog = false" class="text-xl" />
+                <Button label="Lưu" @click="saveAccount" class="text-xl" />
+            </template>
+        </Dialog>
+
+        <Dialog v-model:visible="deleteAccountDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
+            <div class="flex items-center gap-4">
+                <i class="pi pi-exclamation-triangle !text-3xl" />
+                <span v-if="account"
+                    >Bạn có chắc chắn muốn xóa <b>{{ account.displayName }}</b
+                    >?</span
+                >
+            </div>
+            <template #footer>
+                <Button label="Không" icon="pi pi-times" text @click="deleteAccountDialog = false" />
+                <Button label="Có" icon="pi pi-check" @click="deleteAccount(account.id)" />
+            </template>
+        </Dialog>
     </div>
 </template>
 
-<script setup>
-import { useAccount } from '@/composables/account';
+<script>
+import { accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, getPaginatedAccounts, saveAccount, deleteAccount, loading } from '@/composables/account';
 
-const {
-    searchTerm,
-    filteredAccounts,
-    currentAccount,
-    showAccountDialog,
-    isEditMode,
-    permissions,
-    openNewAccountDialog,
-    closeAccountDialog,
-    saveAccount,
-    editAccount,
-    deleteAccount,
-    searchAccounts
-} = useAccount();
+export default {
+    name: 'Account',
+    setup() {
+        getPaginatedAccounts();
+
+        const editAccount = (selectedAccount) => {
+            accountDialog.value = true;
+            account.value = { ...selectedAccount };
+        };
+
+        const confirmDeleteAccount = (selectedAccount) => {
+            deleteAccountDialog.value = true;
+            account.value = { ...selectedAccount };
+        };
+
+        const confirmDeleteSelected = () => {
+            selectedAccounts.value.forEach((acc) => deleteAccount(acc.id));
+        };
+
+        return {
+            loading,
+            accounts,
+            filters,
+            selectedAccounts,
+            accountDialog,
+            deleteAccountDialog,
+            account,
+            roles,
+            editAccount,
+            confirmDeleteAccount,
+            confirmDeleteSelected,
+            saveAccount,
+            deleteAccount
+        };
+    }
+};
 </script>

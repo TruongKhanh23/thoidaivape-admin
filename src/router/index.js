@@ -1,6 +1,8 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import store from "@/store"
+import { computed } from "vue"
 
 const routes = [
     {
@@ -18,6 +20,9 @@ const routes = [
             {
                 path: '/admin/accounts',
                 name: 'accounts',
+                meta: {
+                    requiresAdmin: true
+                },
                 component: () => import('@/views/admin/Accounts.vue')
             },
             {
@@ -165,13 +170,13 @@ const router = createRouter({
     routes
 });
 
-const getCurrentUser = () => {
+const getCurrentAccount = () => {
     return new Promise((resolve, reject) => {
         const removeListener = onAuthStateChanged(
             getAuth(),
-            (user) => {
+            (account) => {
                 removeListener();
-                resolve(user);
+                resolve(account);
             },
             reject
         );
@@ -191,31 +196,46 @@ const extractPaths = (routes) => {
     return paths;
 };
 
+const accountMoreInfo = computed(() => store.getters.getAccount)
+
 router.beforeEach(async (to, from, next) => {
-    const user = await getCurrentUser();
+    let account = await getCurrentAccount();
 
-    // Kiểm tra nếu đường dẫn không nằm trong danh sách đã định sẵn
-    const validPaths = extractPaths(routes);
-
-    if (!validPaths.includes(to.path) && to.path !== '/admin/login') {
-        next('/admin/login');
-        return;
+    // Gán thêm quyền từ `store` nếu có
+    if (account && accountMoreInfo.value) {
+        account = {
+            ...account,
+            rights: accountMoreInfo.value?.rights ?? []
+        };
     }
+
+    // Kiểm tra nếu đường dẫn không nằm trong danh sách hợp lệ
+    const validPaths = extractPaths(routes);
+    if (!validPaths.includes(to.path) && to.path !== '/admin/login') {
+        return next('/admin/login');
+    }
+    console.log("account", account);
 
     // Kiểm tra xác thực
     if (to.matched.some((record) => record.meta.requiresAuth)) {
-        if (user) {
-            next();
-        } else {
-            next('/admin/login');
-        }
-    } else {
-        if (to.path === '/admin/login' && user) {
-            next('/');
-        } else {
-            next();
+        if (!account) {
+            return next('/admin/login');
         }
     }
+
+    // Kiểm tra quyền admin
+    if (to.matched.some((record) => record.meta.requiresAdmin)) {
+        if (!account?.rights?.includes('admin')) {
+            return next('/'); // Điều hướng đến trang access denied
+        }
+    }
+
+    // Ngăn người dùng đã đăng nhập vào lại trang login
+    if (to.path === '/admin/login' && account) {
+        return next('/');
+    }
+
+    next();
 });
 
 export default router;
