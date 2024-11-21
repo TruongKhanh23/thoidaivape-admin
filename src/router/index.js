@@ -18,10 +18,18 @@ const routes = [
                 component: () => import('@/views/admin/Home.vue')
             },
             {
+                path: '/admin/users',
+                name: 'users',
+                meta: {
+                    requiredRights: 'read_user'
+                },
+                component: () => import('@/views/admin/Users.vue')
+            },
+            {
                 path: '/admin/accounts',
                 name: 'accounts',
                 meta: {
-                    requiresAdmin: true
+                    requiredRights: 'admin'
                 },
                 component: () => import('@/views/admin/Accounts.vue')
             },
@@ -124,22 +132,6 @@ const routes = [
         ]
     },
     {
-        path: '/',
-        component: AppLayout,
-        children: [
-            {
-                path: '/admin/users',
-                name: 'users',
-                component: () => import('@/views/admin/Users.vue')
-            },
-            {
-                path: '/admin/firebase',
-                name: 'firebase',
-                component: () => import('@/views/admin/SampleFirebase.vue')
-            }
-        ]
-    },
-    {
         path: '/landing',
         name: 'landing',
         component: () => import('@/views/pages/Landing.vue')
@@ -214,7 +206,6 @@ router.beforeEach(async (to, from, next) => {
     if (!validPaths.includes(to.path) && to.path !== '/admin/login') {
         return next('/admin/login');
     }
-    console.log('account', account);
 
     // Kiểm tra xác thực
     if (to.matched.some((record) => record.meta.requiresAuth)) {
@@ -224,9 +215,10 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // Kiểm tra quyền admin
-    if (to.matched.some((record) => record.meta.requiresAdmin)) {
-        if (!account?.rights?.includes('admin')) {
-            return next('/'); // Điều hướng đến trang access denied
+    if (to.matched.some((record) => record.meta.requiredRights)) {
+        if (!account?.rights?.includes(to.meta.requiredRights)) {
+            // Nếu không đủ quyền, điều hướng tới trang từ chối truy cập
+            next('/auth/access');
         }
     }
 
