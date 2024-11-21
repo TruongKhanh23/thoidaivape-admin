@@ -11,10 +11,28 @@
 import { ref, computed } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
-import store from "@/store"
+import store from '@/store';
+import { RIGHTS } from '@/config/rightsConfig';
 
-const account = computed(() => store.getters.getAccount)
-const rights = computed(() => account.value.rights)
+const menuMapping = {
+    [RIGHTS.ADMIN]: [{ label: 'Accounts', icon: 'pi pi-fw pi-home', to: '/admin/accounts' }],
+    [RIGHTS.READ_USER]: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/users' }]
+};
+
+function getMenuItemsByRights(userRights) {
+    const menuItems = [];
+    userRights.forEach((right) => {
+        if (menuMapping[right]) {
+            menuItems.push(...menuMapping[right]);
+        }
+    });
+    console.log("menuItems", menuItems);
+
+    return menuItems;
+}
+
+const account = computed(() => store.getters.getAccount);
+const rights = computed(() => account.value.rights);
 
 const others = ref({
     label: 'Sample',
@@ -153,27 +171,43 @@ const getStarted = ref({
 });
 
 const dashboard = ref({
-    label: 'Home',
+    label: 'Trang chủ',
     items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
 });
+
+const dynamicMenuItems = computed(() => getMenuItemsByRights(rights.value));
 
 const admin = ref({
     label: 'Admin',
     items: []
 });
 
-const accountPage = { label: 'Accounts', icon: 'pi pi-fw pi-home', to: '/admin/accounts' }
-if(rights.value.includes("admin")){
-    admin.value.items.push(accountPage)
+const manage = ref({
+    label: 'Manage',
+    items: []
+});
+
+dynamicMenuItems.value.forEach((menuItem) => {
+    if (menuItem.to.includes('/admin')) {
+        admin.value.items.push(menuItem);
+    } else {
+        manage.value.items.push(menuItem);
+    }
+});
+
+if (rights.value.includes('admin')) {
+    admin.value.items.push(accountPage);
+    manage.value.items.push(usersPage);
+}
+
+if (rights.value.includes('read_user')) {
+    manage.value.items.push(usersPage);
 }
 
 const model = ref([
-    //dashboard.value,
-    {
-        label: 'Manage',
-        items: [{ label: 'Users', icon: 'pi pi-fw pi-home', to: '/admin/users' }]
-    },
-    admin.value
+    dashboard.value,
+    manage.value,
+    admin.value,
     //others.value,
     //uiComponents.value,
     //pages.value,
