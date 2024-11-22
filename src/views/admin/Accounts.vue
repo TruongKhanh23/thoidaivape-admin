@@ -3,7 +3,7 @@
         <div class="card">
             <div class="font-semibold text-xl">Danh sách quản trị viên</div>
             <DataTable
-                ref="dt"
+                ref="dtAccounts"
                 v-model:selection="selectedAccounts"
                 :value="accounts"
                 :paginator="true"
@@ -46,19 +46,18 @@
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="accountDialog" :header="account.id ? 'Phân quyền' : 'New Account'" modal>
-            <div class="p-fluid space-y-4 text-xl mb-8">
-                <div class="grid grid-cols-4 gap-8">
-                    <div v-for="role in roles" :key="role" class="col-span-1">
-                        <Checkbox v-model="account.rights" :value="role" class="mr-2" />
-                        <label for="rights">{{ role }}</label>
-                    </div>
+
+        <Dialog v-model:visible="accountDialog" header="Phân quyền" :modal="true" :closable="true" :style="{ width: '450px' }">
+            <div>
+                <div class="mb-4">
+                    <div class="font-semibold">Quyền</div>
+                    <MultiSelect v-model="account.rights" :options="roles" optionLabel="name" placeholder="Chọn quyền" :filter="true" class="w-full max-w-full" />
+                </div>
+                <div class="flex justify-end gap-2">
+                    <Button label="Hủy" icon="pi pi-times" class="p-button-text" @click="accountDialog = false" />
+                    <Button label="Lưu" icon="pi pi-check" class="p-button-primary" @click="saveAccount" />
                 </div>
             </div>
-            <template #footer>
-                <Button label="Hủy" @click="accountDialog = false" class="text-xl" />
-                <Button label="Lưu" @click="saveAccount" class="text-xl" />
-            </template>
         </Dialog>
 
         <Dialog v-model:visible="deleteAccountDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
@@ -81,7 +80,7 @@
 import { ref } from 'vue';
 import { onPageChange, totalRecords, currentPage, pageSize, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, saveAccount, deleteAccount, loading, getPaginatedAccounts } from '@/composables/account';
 
-const dt = ref();
+const dtAccounts = ref();
 
 getPaginatedAccounts();
 
@@ -100,6 +99,6 @@ const confirmDeleteSelected = () => {
 };
 
 function exportCSV() {
-    dt.value.exportCSV();
+    dtAccounts.value.exportCSV();
 }
 </script>
