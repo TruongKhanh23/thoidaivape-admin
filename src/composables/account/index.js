@@ -87,7 +87,7 @@ const getPaginatedAccounts = async () => {
 
     // Thực hiện truy vấn
     const querySnapshot = await getDocs(accountsQuery);
-    const results = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const results = querySnapshot.docs.map((doc) => ({ ...doc.data() }));
 
     // Lọc các tài khoản không có quyền 'admin'
     const filteredResults = results.filter((account) => !account.rights.some((right) => right.code === 'admin'));
@@ -121,8 +121,8 @@ function updateState(accountsData, lastDoc) {
 
 const saveAccount = async () => {
     loading.value = true;
-    if (account.value.id) {
-        await updateDoc(doc(db, 'accounts', account.value.id), account.value);
+    if (account.value.uid) {
+        await updateDoc(doc(db, 'accounts', account.value.uid), account.value);
     } else {
         await addDoc(collection(db, 'accounts'), account.value);
     }
@@ -138,11 +138,11 @@ const saveAccount = async () => {
 const deleteAccount = async (id) => {
     try {
         loading.value = true;
-        await deleteDoc(doc(db, 'accounts', id)); // Xóa tài khoản trên Firestore
+        await deleteDoc(doc(db, 'accounts', id));
     } catch (error) {
         console.error('Error deleting account:', error);
     } finally {
-        let index = accounts.value.findIndex((item) => item.id === id);
+        let index = accounts.value.findIndex((item) => item.uid === id);
         if (index !== -1) {
             accounts.value.splice(index, 1);
         }

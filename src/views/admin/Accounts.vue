@@ -9,7 +9,7 @@
                 :paginator="true"
                 :loading="loading"
                 :rows="pageSize"
-                dataKey="id"
+                dataKey="uid"
                 :filters="filters"
                 :first="currentPage * pageSize"
                 :totalRecords="Number(totalRecords) || 0"
@@ -69,7 +69,7 @@
             </div>
             <template #footer>
                 <Button label="Không" icon="pi pi-times" text @click="deleteAccountDialog = false" />
-                <Button label="Có" icon="pi pi-check" @click="deleteAccount(account.id)" />
+                <Button label="Có" icon="pi pi-check" @click="deleteAccount(account.uid)" />
             </template>
         </Dialog>
 
@@ -80,7 +80,7 @@
                     <span>Bạn có chắc chắn muốn xóa các tài khoản sau?</span>
                 </div>
                 <ul>
-                    <li v-for="account in selectedAccounts" :key="account.id">{{ account.displayName }} ({{ account.email }})</li>
+                    <li v-for="account in selectedAccounts" :key="account.uid">{{ account.displayName }} ({{ account.email }})</li>
                 </ul>
             </div>
             <template #footer>
@@ -150,12 +150,13 @@ const deleteSelectedAccounts = async () => {
         loading.value = true;
 
         for (const account of selectedAccounts.value) {
-            await deleteAccount(account.id);
-            let index = accounts.value.findIndex((item) => item.id === account.id);
+            await deleteAccount(account.uid);
+            let index = accounts.value.findIndex((item) => item.uid === account.uid);
             if (index !== -1) {
                 accounts.value.splice(index, 1);
             }
         }
+        selectedAccounts.value = [];
         deleteSelectedAccountsDialog.value = false;
     } catch (error) {
         console.error('Error deleting selected accounts:', error);
