@@ -3,16 +3,16 @@
         <div class="card">
             <div class="font-semibold text-xl">Danh sách quản trị viên</div>
             <DataTable
-                ref="dt"
+                ref="dtAccounts"
                 v-model:selection="selectedAccounts"
                 :value="accounts"
                 :paginator="true"
                 :loading="loading"
                 :rows="pageSize"
-                dataKey="id"
+                dataKey="uid"
                 :filters="filters"
                 :first="currentPage * pageSize"
-                :totalRecords="totalRecords"
+                :totalRecords="Number(totalRecords) || 0"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                 :rowsPerPageOptions="[5, 10, 25]"
                 currentPageReportTemplate="Đang hiển thị {first} - {last} từ {totalRecords} quản trị viên"
@@ -24,7 +24,7 @@
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." />
+                            <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
                             <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedAccounts.length" @click="confirmDeleteSelected" />
@@ -46,19 +46,17 @@
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="accountDialog" :header="account.id ? 'Phân quyền' : 'New Account'" modal>
-            <div class="p-fluid space-y-4 text-xl mb-8">
-                <div class="grid grid-cols-4 gap-8">
-                    <div v-for="role in roles" :key="role" class="col-span-1">
-                        <Checkbox v-model="account.rights" :value="role" class="mr-2" />
-                        <label for="rights">{{ role }}</label>
-                    </div>
+        <Dialog v-model:visible="accountDialog" header="Phân quyền" :modal="true" :closable="true" :style="{ width: '450px' }">
+            <div>
+                <div class="mb-4">
+                    <div class="font-semibold">Quyền</div>
+                    <MultiSelect v-model="account.rights" :options="roles" optionLabel="name" placeholder="Chọn quyền" :filter="true" class="w-full max-w-full" />
+                </div>
+                <div class="flex justify-end gap-2">
+                    <Button label="Hủy" icon="pi pi-times" class="p-button-text" @click="accountDialog = false" />
+                    <Button label="Lưu" icon="pi pi-check" class="p-button-primary" @click="saveAccount" />
                 </div>
             </div>
-            <template #footer>
-                <Button label="Hủy" @click="accountDialog = false" class="text-xl" />
-                <Button label="Lưu" @click="saveAccount" class="text-xl" />
-            </template>
         </Dialog>
 
         <Dialog v-model:visible="deleteAccountDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
@@ -71,7 +69,23 @@
             </div>
             <template #footer>
                 <Button label="Không" icon="pi pi-times" text @click="deleteAccountDialog = false" />
-                <Button label="Có" icon="pi pi-check" @click="deleteAccount(account.id)" />
+                <Button label="Có" icon="pi pi-check" @click="deleteAccount(account.uid)" />
+            </template>
+        </Dialog>
+
+        <Dialog v-model:visible="deleteSelectedAccountsDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
+            <div>
+                <div class="flex items-center gap-4 mb-4">
+                    <i class="pi pi-exclamation-triangle !text-3xl" />
+                    <span>Bạn có chắc chắn muốn xóa các tài khoản sau?</span>
+                </div>
+                <ul>
+                    <li v-for="account in selectedAccounts" :key="account.uid">{{ account.displayName }} ({{ account.email }})</li>
+                </ul>
+            </div>
+            <template #footer>
+                <Button label="Không" icon="pi pi-times" text @click="deleteSelectedAccountsDialog = false" />
+                <Button label="Có" icon="pi pi-check" @click="deleteSelectedAccounts" />
             </template>
         </Dialog>
     </div>
@@ -79,9 +93,41 @@
 
 <script setup>
 import { ref } from 'vue';
-import { onPageChange, totalRecords, currentPage, pageSize, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, saveAccount, deleteAccount, loading, getPaginatedAccounts } from '@/composables/account';
+import {
+    searchCache,
+    lastVisible,
+    onSearch,
+    onPageChange,
+    totalRecords,
+    currentPage,
+    pageSize,
+    accounts,
+    filters,
+    selectedAccounts,
+    accountDialog,
+    deleteAccountDialog,
+    account,
+    roles,
+    saveAccount,
+    deleteAccount,
+    loading,
+    getPaginatedAccounts
+} from '@/composables/account';
+import { onMounted, onBeforeUnmount } from 'vue';
 
-const dt = ref();
+onMounted(() => {
+    accounts.value = [];
+    lastVisible.value = null;
+    totalRecords.value = 0;
+    getPaginatedAccounts();
+});
+
+onBeforeUnmount(() => {
+    searchCache.value = {};
+});
+
+const dtAccounts = ref();
+const deleteSelectedAccountsDialog = ref(false);
 
 getPaginatedAccounts();
 
@@ -96,10 +142,30 @@ const confirmDeleteAccount = (selectedAccount) => {
 };
 
 const confirmDeleteSelected = () => {
-    selectedAccounts.value.forEach((acc) => deleteAccount(acc.id));
+    deleteSelectedAccountsDialog.value = true;
+};
+
+const deleteSelectedAccounts = async () => {
+    try {
+        loading.value = true;
+
+        for (const account of selectedAccounts.value) {
+            await deleteAccount(account.uid);
+            let index = accounts.value.findIndex((item) => item.uid === account.uid);
+            if (index !== -1) {
+                accounts.value.splice(index, 1);
+            }
+        }
+        selectedAccounts.value = [];
+        deleteSelectedAccountsDialog.value = false;
+    } catch (error) {
+        console.error('Error deleting selected accounts:', error);
+    } finally {
+        loading.value = false;
+    }
 };
 
 function exportCSV() {
-    dt.value.exportCSV();
+    dtAccounts.value.exportCSV();
 }
 </script>

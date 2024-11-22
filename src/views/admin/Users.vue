@@ -3,7 +3,7 @@
         <div class="card">
             <div class="font-semibold text-xl">Danh sách khách hàng</div>
             <DataTable
-                ref="dt"
+                ref="dtUsers"
                 v-model:selection="selectedUsers"
                 :value="users"
                 :loading="loading"
@@ -90,7 +90,7 @@ import { formatDate } from '@/utils';
 import { FilterMatchMode } from '@primevue/core/api';
 import { onMounted, ref } from 'vue';
 // Variables
-const dt = ref();
+const dtUsers = ref();
 const user = ref();
 const users = ref([]);
 const userDialog = ref(false);
@@ -135,7 +135,7 @@ function viewUserDetails(value) {
 }
 
 function exportCSV() {
-    dt.value.exportCSV();
+    dtUsers.value.exportCSV();
 }
 
 // Initial Load
