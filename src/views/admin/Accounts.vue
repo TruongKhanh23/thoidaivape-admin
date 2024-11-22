@@ -3,6 +3,7 @@
         <div class="card">
             <div class="font-semibold text-xl">Danh sách quản trị viên</div>
             <DataTable
+                v-if="accounts && accounts.length"
                 ref="dtAccounts"
                 v-model:selection="selectedAccounts"
                 :value="accounts"
@@ -12,7 +13,7 @@
                 dataKey="id"
                 :filters="filters"
                 :first="currentPage * pageSize"
-                :totalRecords="totalRecords || 0"
+                :totalRecords="Number(totalRecords) || 0"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                 :rowsPerPageOptions="[5, 10, 25]"
                 currentPageReportTemplate="Đang hiển thị {first} - {last} từ {totalRecords} quản trị viên"
@@ -44,6 +45,7 @@
                     </template>
                 </Column>
             </DataTable>
+            <div v-else class="text-center mt-4">Không tìm thấy tài khoản nào.</div>
         </div>
 
         <Dialog v-model:visible="accountDialog" header="Phân quyền" :modal="true" :closable="true" :style="{ width: '450px' }">
