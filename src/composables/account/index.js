@@ -60,64 +60,74 @@ const getAllAccounts = async () => {
     loading.value = false;
 };
 
-
-let searchCache = {}; // Khởi tạo cache tìm kiếm
+const searchCache = ref({}); // Khởi tạo cache tìm kiếm
 
 const getPaginatedAccounts = async () => {
-    const maxAccounts = 50;
-    const searchQuery = filters.value.global.value;
+    const maxAccounts = 50; // Số lượng record tải mỗi lần
+    const searchQuery = filters.value.global.value.trim();
     const accountsRef = collection(db, 'accounts');
-    const cacheKey = searchQuery.trim() + (lastVisible.value ? lastVisible.value.id : '');
-    const isSearching = searchQuery.trim() !== '';
-    const isCached = searchCache[cacheKey];
+    const cacheKey = searchQuery + (lastVisible.value ? lastVisible.value.id : '');
+    const isSearching = searchQuery !== '';
+    const isCached = searchCache.value[cacheKey];  // Chú ý cập nhật từ .value
 
-    // Kiểm tra cache trước
+    // Nếu đã có cache, sử dụng cache
     if (isCached) {
         updateStateFromCache(cacheKey);
         return;
     }
 
-    // Tạo query cơ bản
-    let accountsQuery = query(accountsRef, orderBy('createdDate', 'desc'), limit(maxAccounts));
+    let accountsQuery;
 
-    // Thêm phân trang nếu có lastVisible
-    if (lastVisible.value) {
-        accountsQuery = query(accountsQuery, startAfter(lastVisible.value));
-    }
-
-    // Thêm điều kiện tìm kiếm nếu có từ khóa
-    if (isSearching) {
+    // Trường hợp không có tìm kiếm, thực hiện phân trang thông thường
+    if (!isSearching) {
+        accountsQuery = query(accountsRef, orderBy('createdDate', 'desc'), limit(maxAccounts));
+        if (lastVisible.value) {
+            accountsQuery = query(accountsQuery, startAfter(lastVisible.value));
+        }
+    } else {
+        // Trường hợp tìm kiếm
         accountsQuery = query(
-            accountsQuery,
+            accountsRef,
             where('displayName', '>=', searchQuery),
-            where('displayName', '<=', searchQuery + '\uf8ff')
+            where('displayName', '<=', searchQuery + '\uf8ff'),
+            orderBy('displayName', 'asc'),
+            limit(maxAccounts)
         );
     }
 
     // Thực hiện truy vấn
     const querySnapshot = await getDocs(accountsQuery);
+    const results = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-    // Lấy dữ liệu và lọc các tài khoản không có quyền 'admin'
-    const accounts = querySnapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((account) =>
-            !account.rights.some((right) => right.code === 'admin')
-        );
+    // Lọc các tài khoản không có quyền 'admin'
+    const filteredResults = results.filter((account) =>
+        !account.rights.some((right) => right.code === 'admin')
+    );
 
     const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
 
-    // Cập nhật cache
-    updateCache(cacheKey, accounts, lastDoc, querySnapshot.size);
-
-    // Cập nhật trạng thái
-    updateState(accounts, lastDoc);
-    return true;
+    if (isSearching && filteredResults.length === 0 && !lastVisible.value) {
+        // Trường hợp không tìm thấy kết quả và không đang phân trang, cần mở rộng tìm kiếm
+        accountsQuery = query(
+            accountsRef,
+            orderBy('displayName', 'asc'),
+            limit(maxAccounts)
+        );
+        const fallbackSnapshot = await getDocs(accountsQuery);
+        const fallbackResults = fallbackSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        updateCache(cacheKey, fallbackResults, fallbackSnapshot.docs[fallbackSnapshot.docs.length - 1], fallbackResults.length);
+        updateState(fallbackResults, fallbackSnapshot.docs[fallbackSnapshot.docs.length - 1]);
+    } else {
+        // Cập nhật cache và trạng thái
+        updateCache(cacheKey, filteredResults, lastDoc, querySnapshot.size);
+        updateState(filteredResults, lastDoc);
+    }
 };
 
 
 // Hàm cập nhật trạng thái từ cache
 function updateStateFromCache(cacheKey) {
-    const cachedData = searchCache[cacheKey];
+    const cachedData = searchCache.value[cacheKey];  // Chú ý cập nhật từ .value
     accounts.value = cachedData.accounts;
     lastVisible.value = cachedData.lastVisible;
     totalRecords.value = cachedData.totalRecords;
@@ -125,7 +135,7 @@ function updateStateFromCache(cacheKey) {
 
 // Hàm cập nhật cache
 function updateCache(key, accounts, lastDoc, totalRecords) {
-    searchCache[key] = { accounts, lastVisible: lastDoc, totalRecords };
+    searchCache.value[key] = { accounts, lastVisible: lastDoc, totalRecords };  // Chú ý cập nhật từ .value
 }
 
 // Hàm cập nhật trạng thái
@@ -163,7 +173,15 @@ function onPageChange(event) {
     getPaginatedAccounts(); // Gọi lại fetchUsers khi thay đổi trang
 }
 
+const onSearch = () => {
+    lastVisible.value = null; // Reset phân trang
+    currentPage.value = 0; // Reset trang hiện tại
+    getPaginatedAccounts(); // Gọi lại tìm kiếm
+};
+
 export {
+    searchCache,
+    onSearch,
     onPageChange,
     currentPage,
     pageSize,

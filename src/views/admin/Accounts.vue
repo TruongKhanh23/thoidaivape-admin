@@ -12,7 +12,7 @@
                 dataKey="id"
                 :filters="filters"
                 :first="currentPage * pageSize"
-                :totalRecords="totalRecords"
+                :totalRecords="totalRecords || 0"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                 :rowsPerPageOptions="[5, 10, 25]"
                 currentPageReportTemplate="Đang hiển thị {first} - {last} từ {totalRecords} quản trị viên"
@@ -24,7 +24,7 @@
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." />
+                            <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
                             <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedAccounts.length" @click="confirmDeleteSelected" />
@@ -45,7 +45,6 @@
                 </Column>
             </DataTable>
         </div>
-
 
         <Dialog v-model:visible="accountDialog" header="Phân quyền" :modal="true" :closable="true" :style="{ width: '450px' }">
             <div>
@@ -78,7 +77,21 @@
 
 <script setup>
 import { ref } from 'vue';
-import { onPageChange, totalRecords, currentPage, pageSize, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, saveAccount, deleteAccount, loading, getPaginatedAccounts } from '@/composables/account';
+import { searchCache, lastVisible, onSearch, onPageChange, totalRecords, currentPage, pageSize, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, saveAccount, deleteAccount, loading, getPaginatedAccounts } from '@/composables/account';
+import { onMounted, onBeforeUnmount } from 'vue';
+
+onMounted(() => {
+    // Reset trạng thái khi component được tạo lại
+    accounts.value = [];
+    lastVisible.value = null;
+    totalRecords.value = 0;
+    getPaginatedAccounts();
+});
+
+onBeforeUnmount(() => {
+    // Xóa cache liên quan để tránh dữ liệu không đồng nhất
+    searchCache.value = {};
+});
 
 const dtAccounts = ref();
 
@@ -101,4 +114,5 @@ const confirmDeleteSelected = () => {
 function exportCSV() {
     dtAccounts.value.exportCSV();
 }
+
 </script>
