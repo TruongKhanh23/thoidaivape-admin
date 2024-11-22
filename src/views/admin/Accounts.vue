@@ -3,7 +3,7 @@
         <div class="card">
             <div class="font-semibold text-xl">Danh sách quản trị viên</div>
             <DataTable
-                ref="dt"
+                ref="dtAccounts"
                 v-model:selection="selectedAccounts"
                 :value="accounts"
                 :paginator="true"
@@ -46,11 +46,12 @@
             </DataTable>
         </div>
 
+
         <Dialog v-model:visible="accountDialog" header="Phân quyền" :modal="true" :closable="true" :style="{ width: '450px' }">
             <div>
                 <div class="mb-4">
                     <div class="font-semibold">Quyền</div>
-                    <MultiSelect v-model="selectedPermissions" :options="roles" optionLabel="name" placeholder="Chọn quyền" :filter="true" style="min-width: 100%" />
+                    <MultiSelect v-model="account.rights" :options="roles" optionLabel="name" placeholder="Chọn quyền" :filter="true" class="w-full max-w-full" />
                 </div>
                 <div class="flex justify-end gap-2">
                     <Button label="Hủy" icon="pi pi-times" class="p-button-text" @click="accountDialog = false" />
@@ -79,8 +80,7 @@
 import { ref } from 'vue';
 import { onPageChange, totalRecords, currentPage, pageSize, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, saveAccount, deleteAccount, loading, getPaginatedAccounts } from '@/composables/account';
 
-const dt = ref();
-const selectedPermissions = ref([]);
+const dtAccounts = ref();
 
 getPaginatedAccounts();
 
@@ -99,6 +99,6 @@ const confirmDeleteSelected = () => {
 };
 
 function exportCSV() {
-    dt.value.exportCSV();
+    dtAccounts.value.exportCSV();
 }
 </script>

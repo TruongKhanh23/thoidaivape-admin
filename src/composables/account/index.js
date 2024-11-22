@@ -11,7 +11,7 @@ const selectedAccounts = ref([]);
 const accountDialog = ref(false);
 const deleteAccountDialog = ref(false);
 const account = ref({});
-const pageSize = ref(1);
+const pageSize = ref(10);
 const currentPage = ref(0);
 const userRoles = ['read_user'];
 
@@ -43,15 +43,23 @@ const roles = allRoles.map((role) => ({
     code: role
 }));
 
-console.log(roles);
-
 const getAllAccounts = async () => {
     loading.value = true;
-    const q = query(collection(db, 'accounts'), where('rights', '!=', ['admin']));
+
+    // Truy vấn để lấy tất cả các tài khoản (Firestore không hỗ trợ lọc trực tiếp trong trường hợp này).
+    const q = query(collection(db, 'accounts'));
     const querySnapshot = await getDocs(q);
-    accounts.value = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+
+    // Lọc các tài khoản không có quyền 'admin' dựa trên trường code trong rights.
+    accounts.value = querySnapshot.docs
+        .map((doc) => ({ ...doc.data(), id: doc.id }))
+        .filter((account) =>
+            !account.rights.some((right) => right.code === 'admin')
+        );
+
     loading.value = false;
 };
+
 
 let searchCache = {}; // Khởi tạo cache tìm kiếm
 
@@ -70,7 +78,7 @@ const getPaginatedAccounts = async () => {
     }
 
     // Tạo query cơ bản
-    let accountsQuery = query(accountsRef, where('rights', '!=', ['admin']), orderBy('createdDate', 'desc'), limit(maxAccounts));
+    let accountsQuery = query(accountsRef, orderBy('createdDate', 'desc'), limit(maxAccounts));
 
     // Thêm phân trang nếu có lastVisible
     if (lastVisible.value) {
@@ -79,12 +87,23 @@ const getPaginatedAccounts = async () => {
 
     // Thêm điều kiện tìm kiếm nếu có từ khóa
     if (isSearching) {
-        accountsQuery = query(accountsQuery, where('displayName', '>=', searchQuery), where('displayName', '<=', searchQuery + '\uf8ff'));
+        accountsQuery = query(
+            accountsQuery,
+            where('displayName', '>=', searchQuery),
+            where('displayName', '<=', searchQuery + '\uf8ff')
+        );
     }
 
     // Thực hiện truy vấn
     const querySnapshot = await getDocs(accountsQuery);
-    const accounts = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    // Lấy dữ liệu và lọc các tài khoản không có quyền 'admin'
+    const accounts = querySnapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((account) =>
+            !account.rights.some((right) => right.code === 'admin')
+        );
+
     const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
 
     // Cập nhật cache
@@ -94,6 +113,7 @@ const getPaginatedAccounts = async () => {
     updateState(accounts, lastDoc);
     return true;
 };
+
 
 // Hàm cập nhật trạng thái từ cache
 function updateStateFromCache(cacheKey) {

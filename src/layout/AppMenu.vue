@@ -14,7 +14,7 @@ import AppMenuItem from './AppMenuItem.vue';
 import store from '@/store';
 
 const account = computed(() => store.getters.getAccount);
-const rights = computed(() => account.value?.rights || []);
+const rights = computed(() => account.value?.rights.map(item => item.code) || []);
 
 const others = ref({
     label: 'Sample',
