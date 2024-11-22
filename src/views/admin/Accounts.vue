@@ -74,6 +74,22 @@
                 <Button label="Có" icon="pi pi-check" @click="deleteAccount(account.id)" />
             </template>
         </Dialog>
+
+        <Dialog v-model:visible="deleteSelectedAccountsDialog" :style="{ width: '450px' }" header="Xác nhận xóa" :modal="true">
+            <div>
+                <div class="flex items-center gap-4 mb-4">
+                    <i class="pi pi-exclamation-triangle !text-3xl" />
+                    <span>Bạn có chắc chắn muốn xóa các tài khoản sau?</span>
+                </div>
+                <ul>
+                    <li v-for="account in selectedAccounts" :key="account.id">{{ account.displayName }} ({{ account.email }})</li>
+                </ul>
+            </div>
+            <template #footer>
+                <Button label="Không" icon="pi pi-times" text @click="deleteSelectedAccountsDialog = false" />
+                <Button label="Có" icon="pi pi-check" @click="deleteSelectedAccounts" />
+            </template>
+        </Dialog>
     </div>
 </template>
 
@@ -115,6 +131,7 @@ onBeforeUnmount(() => {
 });
 
 const dtAccounts = ref();
+const deleteSelectedAccountsDialog = ref(false);
 
 getPaginatedAccounts();
 
@@ -129,7 +146,26 @@ const confirmDeleteAccount = (selectedAccount) => {
 };
 
 const confirmDeleteSelected = () => {
-    selectedAccounts.value.forEach((acc) => deleteAccount(acc.id));
+    deleteSelectedAccountsDialog.value = true;
+};
+
+const deleteSelectedAccounts = async () => {
+    try {
+        loading.value = true;
+
+        for (const account of selectedAccounts.value) {
+            await deleteAccount(account.id);
+            let index = accounts.value.findIndex((item) => item.id === account.id);
+            if (index !== -1) {
+                accounts.value.splice(index, 1);
+            }
+        }
+        deleteSelectedAccountsDialog.value = false;
+    } catch (error) {
+        console.error('Error deleting selected accounts:', error);
+    } finally {
+        loading.value = false;
+    }
 };
 
 function exportCSV() {
