@@ -106,24 +106,10 @@ const getPaginatedAccounts = async () => {
 
     const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
 
-    if (isSearching && filteredResults.length === 0 && !lastVisible.value) {
-        // Trường hợp không tìm thấy kết quả và không đang phân trang, cần mở rộng tìm kiếm
-        accountsQuery = query(
-            accountsRef,
-            orderBy('displayName', 'asc'),
-            limit(maxAccounts)
-        );
-        const fallbackSnapshot = await getDocs(accountsQuery);
-        const fallbackResults = fallbackSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        updateCache(cacheKey, fallbackResults, fallbackSnapshot.docs[fallbackSnapshot.docs.length - 1], fallbackResults.length);
-        updateState(fallbackResults, fallbackSnapshot.docs[fallbackSnapshot.docs.length - 1]);
-    } else {
-        // Cập nhật cache và trạng thái
-        updateCache(cacheKey, filteredResults, lastDoc, querySnapshot.size);
-        updateState(filteredResults, lastDoc);
-    }
+    // Cập nhật cache và trạng thái
+    updateCache(cacheKey, filteredResults, lastDoc, querySnapshot.size);
+    updateState(filteredResults, lastDoc);
 };
-
 
 // Hàm cập nhật trạng thái từ cache
 function updateStateFromCache(cacheKey) {
@@ -142,24 +128,37 @@ function updateCache(key, accounts, lastDoc, totalRecords) {
 function updateState(accountsData, lastDoc) {
     accounts.value = accountsData;
     lastVisible.value = lastDoc;
-    totalRecords.value = totalRecords;
+    totalRecords.value = accountsData.length; // hoặc tổng số record thực tế từ Firebase
 }
 
 const saveAccount = async () => {
+    loading.value = true;
     if (account.value.id) {
         await updateDoc(doc(db, 'accounts', account.value.id), account.value);
     } else {
         await addDoc(collection(db, 'accounts'), account.value);
     }
     accountDialog.value = false;
+
+    // Reset pagination và fetch lại danh sách
+    lastVisible.value = null;
+    currentPage.value = 0;
     await getPaginatedAccounts();
+    loading.value = false;
 };
 
 const deleteAccount = async (id) => {
+    loading.value = true;
     await deleteDoc(doc(db, 'accounts', id));
     deleteAccountDialog.value = false;
+
+    // Reset pagination và fetch lại danh sách
+    lastVisible.value = null;
+    currentPage.value = 0;
     await getPaginatedAccounts();
+    loading.value = false;
 };
+
 
 const searchAccounts = (query) => {
     filters.value.global.value = query;
