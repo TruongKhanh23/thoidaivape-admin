@@ -79,7 +79,26 @@
 
 <script setup>
 import { ref } from 'vue';
-import { searchCache, lastVisible, onSearch, onPageChange, totalRecords, currentPage, pageSize, accounts, filters, selectedAccounts, accountDialog, deleteAccountDialog, account, roles, saveAccount, deleteAccount, loading, getPaginatedAccounts } from '@/composables/account';
+import {
+    searchCache,
+    lastVisible,
+    onSearch,
+    onPageChange,
+    totalRecords,
+    currentPage,
+    pageSize,
+    accounts,
+    filters,
+    selectedAccounts,
+    accountDialog,
+    deleteAccountDialog,
+    account,
+    roles,
+    saveAccount,
+    deleteAccount,
+    loading,
+    getPaginatedAccounts
+} from '@/composables/account';
 import { onMounted, onBeforeUnmount } from 'vue';
 
 onMounted(() => {
@@ -116,5 +135,4 @@ const confirmDeleteSelected = () => {
 function exportCSV() {
     dtAccounts.value.exportCSV();
 }
-
 </script>
