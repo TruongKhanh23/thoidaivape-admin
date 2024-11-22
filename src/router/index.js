@@ -1,8 +1,8 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import store from "@/store"
-import { computed } from "vue"
+import store from '@/store';
+import { computed } from 'vue';
 
 const routes = [
     {
@@ -14,14 +14,22 @@ const routes = [
         children: [
             {
                 path: '/',
-                name: 'user',
+                name: 'home',
+                component: () => import('@/views/admin/Home.vue')
+            },
+            {
+                path: '/admin/users',
+                name: 'users',
+                meta: {
+                    requiredRights: 'read_user'
+                },
                 component: () => import('@/views/admin/Users.vue')
             },
             {
                 path: '/admin/accounts',
                 name: 'accounts',
                 meta: {
-                    requiresAdmin: true
+                    requiredRights: 'admin'
                 },
                 component: () => import('@/views/admin/Accounts.vue')
             },
@@ -124,22 +132,6 @@ const routes = [
         ]
     },
     {
-        path: '/',
-        component: AppLayout,
-        children: [
-            {
-                path: '/admin/users',
-                name: 'users',
-                component: () => import('@/views/admin/Users.vue')
-            },
-            {
-                path: '/admin/firebase',
-                name: 'firebase',
-                component: () => import('@/views/admin/SampleFirebase.vue')
-            }
-        ]
-    },
-    {
         path: '/landing',
         name: 'landing',
         component: () => import('@/views/pages/Landing.vue')
@@ -196,7 +188,7 @@ const extractPaths = (routes) => {
     return paths;
 };
 
-const accountMoreInfo = computed(() => store.getters.getAccount)
+const accountMoreInfo = computed(() => store.getters.getAccount);
 
 router.beforeEach(async (to, from, next) => {
     let account = await getCurrentAccount();
@@ -214,7 +206,6 @@ router.beforeEach(async (to, from, next) => {
     if (!validPaths.includes(to.path) && to.path !== '/admin/login') {
         return next('/admin/login');
     }
-    console.log("account", account);
 
     // Kiểm tra xác thực
     if (to.matched.some((record) => record.meta.requiresAuth)) {
@@ -224,9 +215,11 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // Kiểm tra quyền admin
-    if (to.matched.some((record) => record.meta.requiresAdmin)) {
-        if (!account?.rights?.includes('admin')) {
-            return next('/'); // Điều hướng đến trang access denied
+    if (to.matched.some((record) => record.meta.requiredRights)) {
+        const rights = !account?.rights?.map(item => item.code) || [];
+        if (rights?.includes(to.meta.requiredRights) || rights?.map(item => item.code).includes('admin')) {
+            // Nếu không đủ quyền, điều hướng tới trang từ chối truy cập
+            next('/auth/access');
         }
     }
 
