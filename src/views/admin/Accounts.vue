@@ -3,7 +3,6 @@
         <div class="card">
             <div class="font-semibold text-xl">Danh sách quản trị viên</div>
             <DataTable
-                v-if="accounts && accounts.length"
                 ref="dtAccounts"
                 v-model:selection="selectedAccounts"
                 :value="accounts"
@@ -45,7 +44,6 @@
                     </template>
                 </Column>
             </DataTable>
-            <div v-else class="text-center mt-4">Không tìm thấy tài khoản nào.</div>
         </div>
 
         <Dialog v-model:visible="accountDialog" header="Phân quyền" :modal="true" :closable="true" :style="{ width: '450px' }">
@@ -118,7 +116,6 @@ import {
 import { onMounted, onBeforeUnmount } from 'vue';
 
 onMounted(() => {
-    // Reset trạng thái khi component được tạo lại
     accounts.value = [];
     lastVisible.value = null;
     totalRecords.value = 0;
@@ -126,7 +123,6 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-    // Xóa cache liên quan để tránh dữ liệu không đồng nhất
     searchCache.value = {};
 });
 
