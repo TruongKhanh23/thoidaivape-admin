@@ -161,6 +161,7 @@ const model = ref([
         label: 'Manage',
         items: [
             { label: 'Users', icon: 'pi pi-fw pi-user', to: '/admin/users', requiredRights: 'read_user' },
+            { label: 'Products', icon: 'pi pi-fw pi-file', to: '/admin/products' },
             { label: 'RichText', icon: 'pi pi-fw pi-user', to: '/admin/sample-rich-text' }
         ]
     },
