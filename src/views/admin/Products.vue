@@ -56,15 +56,35 @@
         </div>
 
         <!-- Dialog tạo mới sản phẩm -->
-        <Dialog v-model:visible="productDialog" header="Tạo mới sản phẩm" :modal="true" :closable="true" :style="{ width: '450px' }">
+        <Dialog v-model:visible="productDialog" header="Tạo mới sản phẩm" :modal="true" :closable="true" :style="{ width: '650px' }">
             <div>
                 <div class="mb-4">
                     <label class="block font-semibold">Tên sản phẩm</label>
                     <InputText v-model="product.name" placeholder="Nhập tên sản phẩm" class="w-full" />
                 </div>
                 <div class="mb-4">
+                    <label class="block font-semibold">Mô tả ngắn</label>
+                    <Textarea v-model="product.shortDescription" placeholder="Nhập mô tả ngắn" class="w-full" rows="3" />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Mô tả chi tiết</label>
+                    <RichTextEditor v-model="product.description" />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Ảnh đại diện</label>
+                    <FileUpload name="thumbnail" @uploader="onUpload" :multiple="false" accept="image/*" :maxFileSize="1000000" customUpload />
+                </div>
+                <div class="mb-4">
                     <label class="block font-semibold">Giá</label>
-                    <InputNumber v-model="product.price" :min="0" class="w-full" />
+                    <InputNumber v-model="product.price" :min="0" class="w-full" mode="decimal" showButtons />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Giá khuyến mãi</label>
+                    <InputNumber v-model="product.salePrice" :min="0" class="w-full" mode="decimal" showButtons />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Ảnh sản phẩm</label>
+                    <FileUpload name="images" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload />
                 </div>
                 <div class="mb-4">
                     <label class="block font-semibold">Bộ sưu tập</label>
@@ -73,6 +93,26 @@
                 <div class="mb-4">
                     <label class="block font-semibold">Trạng thái</label>
                     <Dropdown v-model="product.status" :options="statusOptions" optionLabel="label" class="w-full" />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Thẻ (Tags)</label>
+                    <Tag v-model="product.tags" class="w-full" />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Số lượng đã bán</label>
+                    <InputNumber v-model="product.soldAmount" :min="0" class="w-full" />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Lượt truy cập</label>
+                    <InputNumber v-model="product.hits" :min="0" class="w-full" />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Công suất</label>
+                    <InputNumber v-model="product.power" :min="0" class="w-full" />
+                </div>
+                <div class="mb-4">
+                    <label class="block font-semibold">Thương hiệu</label>
+                    <Dropdown v-model="product.brand" :options="brands" optionLabel="name" class="w-full" />
                 </div>
                 <div class="flex justify-end gap-2">
                     <Button label="Hủy" icon="pi pi-times" class="p-button-text" @click="productDialog = false" />
@@ -145,6 +185,19 @@ const statusOptions = ref([
     { label: 'Hết hàng', value: 'out_of_stock' }
 ]);
 
+const brands = ref([
+    { id: 'oxva', name: 'Oxva' },
+    { id: 'aspire', name: 'Aspire' },
+    { id: 'fitpod', name: 'Fitpod' },
+    { id: 'lost-vape', name: 'Lost Vape' },
+    { id: 'voopoo', name: 'Voopoo' },
+    { id: 'geek-vape', name: 'Geek Vape' },
+    { id: 'dovpo', name: 'Dovpo' },
+    { id: 'sp2s', name: 'SP2S' },
+    { id: 'romio-astro', name: 'Romio Astro' },
+    { id: 'dotmod', name: 'dotMod' }
+]);
+
 // Hàm tìm kiếm
 const onSearch = () => {
     getPaginatedProducts();
@@ -158,7 +211,6 @@ const getPaginatedProducts = async () => {
     totalRecords.value = products.value.length;
 };
 
-// Hàm tạo mới sản phẩm
 const saveProduct = async () => {
     const data = { ...product.value, collectionId: product.value.collectionId.id, status: product.value.status.value };
 
