@@ -39,6 +39,11 @@ const routes = [
                 component: () => import('@/views/admin/Profile.vue')
             },
             {
+                path: '/admin/sample-rich-text',
+                name: 'sample-rich-text',
+                component: () => import('@/views/admin/SampleRichText.vue')
+            },
+            {
                 path: '/uikit/formlayout',
                 name: 'formlayout',
                 component: () => import('@/views/uikit/FormLayout.vue')
@@ -216,8 +221,8 @@ router.beforeEach(async (to, from, next) => {
 
     // Kiểm tra quyền admin
     if (to.matched.some((record) => record.meta.requiredRights)) {
-        const rights = !account?.rights?.map(item => item.code) || [];
-        if (rights?.includes(to.meta.requiredRights) || rights?.map(item => item.code).includes('admin')) {
+        const rights = !account?.rights?.map((item) => item.code) || [];
+        if (rights?.includes(to.meta.requiredRights) || rights?.map((item) => item.code).includes('admin')) {
             // Nếu không đủ quyền, điều hướng tới trang từ chối truy cập
             next('/auth/access');
         }
