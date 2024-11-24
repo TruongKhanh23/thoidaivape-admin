@@ -14,7 +14,7 @@ import AppMenuItem from './AppMenuItem.vue';
 import store from '@/store';
 
 const account = computed(() => store.getters.getAccount);
-const rights = computed(() => account.value?.rights.map(item => item.code) || []);
+const rights = computed(() => account.value?.rights.map((item) => item.code) || []);
 
 const others = ref({
     label: 'Sample',
@@ -159,7 +159,10 @@ const model = ref([
     },
     {
         label: 'Manage',
-        items: [{ label: 'Users', icon: 'pi pi-fw pi-user', to: '/admin/users', requiredRights: 'read_user' }]
+        items: [
+            { label: 'Users', icon: 'pi pi-fw pi-user', to: '/admin/users', requiredRights: 'read_user' },
+            { label: 'RichText', icon: 'pi pi-fw pi-user', to: '/admin/sample-rich-text' }
+        ]
     },
     {
         label: 'Admin',
