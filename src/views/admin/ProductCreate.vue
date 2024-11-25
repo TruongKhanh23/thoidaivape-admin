@@ -34,7 +34,7 @@
             </div>
             <div class="mb-4">
                 <label class="block font-semibold">Trạng thái</label>
-                <Dropdown v-model="product.status" :options="statusOptions" optionLabel="label" class="w-full" />
+                <Dropdown v-model="product.status" :options="statusOptions" optionLabel="name" class="w-full" />
             </div>
             <div class="mb-4">
                 <label class="block font-semibold">Thẻ (Tags)</label>
@@ -45,7 +45,7 @@
                 <InputNumber v-model="product.soldAmount" :min="0" class="w-full" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Lượt truy cập</label>
+                <label class="block font-semibold">Số hơi</label>
                 <InputNumber v-model="product.hits" :min="0" class="w-full" />
             </div>
             <div class="mb-4">
@@ -84,6 +84,13 @@ const thumbnail = ref();
 const images = ref([]);
 const description = ref();
 
+const collections = [{ id: 'freebase', name: 'Freebase' }];
+const statusOptions = [
+    { id: 'in_stock', name: 'Còn hàng' },
+    { id: 'out_of_stock', name: 'Hết hàng' }
+];
+const brands = [{ id: 'dotmod', name: 'dotmod' }];
+
 function handleUploadThumbnail(binary) {
     thumbnail.value = binary;
     console.log('Thumbnail Data:', thumbnail.value);
@@ -100,7 +107,7 @@ function handleUpdateRichText(content) {
 }
 
 const saveProduct = async () => {
-    const data = { ...product.value, collectionId: product.value.collectionId.id, status: product.value.status.value };
+    const data = { ...product.value, thumbnail: thumbnail.value, images: images.value, description: description.value };
 
     if (product.value.id) {
         // Cập nhật sản phẩm
