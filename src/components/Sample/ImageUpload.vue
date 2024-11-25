@@ -1,15 +1,23 @@
 <template>
     <div class="flex flex-col items-start space-y-2">
         <div class="flex items-center space-x-4">
-            <Button icon="pi pi-upload" class="mr-2" @click="triggerFileInput" />
+            <Button icon="pi pi-upload" @click="triggerFileInput" />
             <div v-if="files.length">
-                <div v-for="(file, index) in files" :key="index" class="flex items-center space-x-2">
-                    <img :src="imagePreviews[index]" alt="preview" class="w-10 h-10 object-cover rounded-md" />
-                    <span v-if="file">{{ file.name }}</span>
+                <div v-if="files.length == 1">
+                    <div v-for="(file, index) in files" :key="index" class="flex flex-row items-center space-x-4">
+                        <img :src="imagePreviews[index]" alt="preview" class="w-10 h-10 object-cover rounded-md" />
+                        <span>{{ file.name }}</span>
+                    </div>
+                </div>
+                <div v-else class="flex flex-row space-x-4">
+                    <div v-for="(file, index) in files" :key="index">
+                        <img :src="imagePreviews[index]" alt="preview" class="w-10 h-10 object-cover rounded-md" />
+                    </div>
                 </div>
             </div>
-            <label v-else>Please select files to upload</label>
-            <input type="file" id="image" :accept="accept" :multiple="multiple" @change="handleFileChange" class="hidden" />
+            <label v-if="!files.length">Please select files to upload</label>
+
+            <input type="file" :id="inputId" :accept="accept" :multiple="multiple" @change="handleFileChange" class="hidden" />
         </div>
         <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
     </div>
@@ -20,6 +28,10 @@ import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
     props: {
+        idPrefix: {
+            type: String,
+            required: true // Bắt buộc phải truyền vào để đảm bảo id duy nhất
+        },
         multiple: {
             type: Boolean,
             default: false
@@ -33,13 +45,16 @@ export default defineComponent({
             default: 'image/*'
         }
     },
-    emits: ['binary-selected'],
+    emits: ['binary-selected', 'error'],
     setup(props, { emit }) {
         const files = ref([]);
         const imagePreviews = ref([]);
         const errorMessage = ref('');
 
-        const triggerFileInput = () => document.getElementById('image').click();
+        // Tạo id động từ idPrefix
+        const inputId = `${props.idPrefix}-file-input`;
+
+        const triggerFileInput = () => document.getElementById(inputId).click();
 
         const handleFileChange = async (event) => {
             const selectedFiles = Array.from(event.target.files);
@@ -94,7 +109,7 @@ export default defineComponent({
             });
         };
 
-        return { files, imagePreviews, triggerFileInput, handleFileChange, errorMessage };
+        return { files, imagePreviews, triggerFileInput, handleFileChange, errorMessage, inputId };
     }
 });
 </script>
