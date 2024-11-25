@@ -1,6 +1,12 @@
 <template>
-    <div class="editor-container">
+    <div class="editor-container w-full">
         <div ref="editor" class="quill-editor"></div>
+        <div class="mt-2 text-sm text-gray-500">
+            Tổng byte: {{ totalBytes }} bytes / {{ MAX_SIZE }} - Còn lại: {{ MAX_SIZE - totalBytes }}
+        </div>
+        <div v-if="isExceedMaxSize" class="text-red-500 text-sm mt-2">
+            Dung lượng văn bản đã đạt mức tối đa 1048487 byte, vui lòng tóm gọn lại văn bản.
+        </div>
 
         <div class="mt-4">
             <label for="rows" class="mr-2">Số dòng:</label>
@@ -19,6 +25,13 @@
         <!-- Hiển thị nội dung dưới editor -->
         <div class="font-semibold text-xl my-4">Xem trước</div>
         <div class="mt-4 p-4 border rounded" v-html="formattedContent"></div>
+
+
+
+        <!-- Nút Cập nhật -->
+        <div class="mt-4 text-center">
+            <Button @click="saveContent" class="px-4 py-2 bg-blue-500 text-white rounded">Cập nhật</Button>
+        </div>
     </div>
 </template>
 
@@ -26,6 +39,7 @@
 import { ref, onMounted, computed, nextTick } from 'vue';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Import Quill CSS
+import { getFirestore, doc, setDoc } from 'firebase/firestore'; // Firebase Firestore
 
 export default {
     name: 'TextEditor',
@@ -34,6 +48,9 @@ export default {
         const editorContent = ref(''); // Lưu trữ nội dung editor
         const numRows = ref(3); // Mặc định số dòng là 3
         const numColumns = ref(3); // Mặc định số cột là 3
+        const isExceedMaxSize = ref(false); // Biến trạng thái kiểm tra dung lượng
+        const totalBytes = ref(0); // Lưu trữ tổng số byte
+        const MAX_SIZE = 1048487; // Giới hạn dung lượng tối đa là 1048487 byte
 
         let quillInstance = null;
 
@@ -49,7 +66,7 @@ export default {
                         ['link', 'image'],
                         [{ align: [] }],
                         ['blockquote', 'code-block'],
-                        [{ color: [] }] // Thêm lựa chọn màu chữ vào toolbar
+                        [{ color: [] }]
                     ]
                 }
             });
@@ -57,6 +74,8 @@ export default {
             // Theo dõi sự thay đổi trong nội dung của Quill
             quillInstance.on('text-change', () => {
                 editorContent.value = quillInstance.root.innerHTML;
+                checkContentSize(); // Kiểm tra dung lượng mỗi khi nội dung thay đổi
+                updateTotalBytes(); // Cập nhật tổng số byte khi có thay đổi nội dung
             });
 
             // Đảm bảo CSS bảng được áp dụng sau khi tạo nội dung
@@ -64,6 +83,16 @@ export default {
                 applyTableCSS();
             });
         });
+
+        // Hàm kiểm tra dung lượng của nội dung
+        const checkContentSize = () => {
+            const contentByteSize = new TextEncoder().encode(editorContent.value).length;
+            if (contentByteSize > MAX_SIZE) {
+                isExceedMaxSize.value = true; // Hiển thị thông báo nếu vượt quá giới hạn
+            } else {
+                isExceedMaxSize.value = false; // Ẩn thông báo nếu dung lượng hợp lệ
+            }
+        };
 
         // Hàm thêm CSS vào bảng và ô trong bảng
         const applyTableCSS = () => {
@@ -105,9 +134,33 @@ export default {
             });
         };
 
-        // Hàm log nội dung
-        const logContent = () => {
-            console.log(editorContent.value);
+        const updateTotalBytes = () => {
+            totalBytes.value = new TextEncoder().encode(editorContent.value).length; // Tính tổng byte
+        };
+
+
+
+        // Lưu nội dung vào Firestore
+        const saveContent = async () => {
+            if (isExceedMaxSize.value) {
+                alert('Dung lượng văn bản quá lớn! Vui lòng tóm gọn lại văn bản.');
+                return;
+            }
+
+            const db = getFirestore();
+            const docRef = doc(db, 'richtext', 'yourDocumentId'); // Thay đổi `yourDocumentId` cho phù hợp
+
+            try {
+                // Lưu nội dung của editor vào Firestore
+                await setDoc(docRef, {
+                    content: editorContent.value,
+                    timestamp: new Date() // Lưu thời gian cập nhật
+                });
+                alert('Cập nhật thành công!');
+            } catch (error) {
+                console.error('Lỗi khi lưu dữ liệu:', error);
+                alert('Có lỗi xảy ra, vui lòng thử lại!');
+            }
         };
 
         // Format content (hiển thị lại nội dung với HTML)
@@ -117,11 +170,14 @@ export default {
 
         return {
             editor,
-            logContent,
+            saveContent,
             formattedContent,
             numRows,
             numColumns,
-            createTable
+            createTable,
+            isExceedMaxSize,
+            totalBytes,
+            MAX_SIZE
         };
     }
 };
@@ -130,7 +186,6 @@ export default {
 <style scoped>
 /* Customize editor container if needed */
 .editor-container {
-    max-width: 800px;
     margin: 0 auto;
 }
 .quill-editor {
