@@ -1,11 +1,19 @@
 <template>
     <div class="flex flex-col items-center justify-start">
-        <div class="bg-white p-6 rounded-lg shadow-md w-96">
+        <div class="bg-white p-6 rounded-lg shadow-md min-w-[50vh]">
             <h1 class="text-2xl font-semibold text-center text-gray-800 mb-4">Upload Image</h1>
             <form @submit.prevent="uploadImage">
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="image"> Select Image </label>
-                    <input type="file" id="image" accept="image/*" @change="handleFileChange" class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer focus:outline-none" />
+                    <div class="flex flex-row space-x-4 items-center">
+                        <Button icon="pi pi-upload" class="mr-2" @click="triggerFileInput"></Button>
+                        <div v-if="file" class="mb-4 text-center">
+                            <img :src="imagePreview" alt="preview" class="w-16 h-16 object-cover rounded-md" />
+                        </div>
+                        <label v-if="file?.name" for="image">{{ file?.name }}</label>
+                        <label v-else for="image">Chưa có tệp nào được chọn</label>
+                        <input type="file" id="image" accept="image/*" @change="handleFileChange" class="hidden" />
+                    </div>
                 </div>
                 <button type="submit" :disabled="!file || isUploading" class="w-full px-4 py-2 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 focus:ring focus:ring-blue-300 focus:outline-none disabled:opacity-50">
                     <span v-if="isUploading">Uploading...</span>
@@ -29,6 +37,14 @@ export default defineComponent({
         const file = ref(null);
         const isUploading = ref(false);
         const message = ref('');
+        const imagePreview = ref('');
+
+        const triggerFileInput = () => {
+            const fileInput = document.getElementById('image');
+            if (fileInput) {
+                fileInput.click();
+            }
+        };
 
         // Firebase Firestore reference
         const db = getFirestore();
@@ -50,6 +66,16 @@ export default defineComponent({
         const handleFileChange = (event) => {
             const target = event.target;
             file.value = target.files ? target.files[0] : null;
+
+            // Tạo preview cho file hình ảnh đã chọn
+            if (file.value) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    imagePreview.value = reader.result; // Lưu URL preview
+                };
+                reader.readAsDataURL(file.value); // Đọc file và tạo URL tạm thời
+            }
+
             if (file.value && file.value.size > 10 * 1024 * 1024) {
                 message.value = 'File size exceeds 10MB!';
                 isUploading.value = false;
@@ -85,7 +111,9 @@ export default defineComponent({
             isUploading,
             message,
             handleFileChange,
-            uploadImage
+            uploadImage,
+            triggerFileInput,
+            imagePreview,
         };
     }
 });

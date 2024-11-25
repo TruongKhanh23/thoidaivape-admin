@@ -1,7 +1,7 @@
 <template>
     <div className="card">
         <div class="font-semibold text-xl mb-4">Sample Upload File</div>
-        <div class="flex flex-row space-x-4">
+        <div class="flex flex-row space-x-4 w-full">
             <UploadFile />
             <DisplayImageFirestore />
         </div>
