@@ -49,6 +49,11 @@ const routes = [
                 component: () => import('@/views/admin/SampleRichText.vue')
             },
             {
+                path: '/admin/sample-upload-file',
+                name: 'sample-upload-file',
+                component: () => import('@/views/sample/SampleUploadFile.vue')
+            },
+            {
                 path: '/uikit/formlayout',
                 name: 'formlayout',
                 component: () => import('@/views/uikit/FormLayout.vue')
