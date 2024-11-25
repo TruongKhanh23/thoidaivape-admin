@@ -56,10 +56,7 @@ export default {
                 editorContent.value = quillInstance.root.innerHTML;
                 checkContentSize(); // Kiểm tra dung lượng mỗi khi nội dung thay đổi
                 updateTotalBytes(); // Cập nhật tổng số byte khi có thay đổi nội dung
-                emit('richTextUpdated', {
-                    content: editorContent.value,
-                    timestamp: new Date() // Lưu thời gian cập nhật
-                });
+                emit('richTextUpdated', editorContent.value);
             });
 
             // Đảm bảo CSS bảng được áp dụng sau khi tạo nội dung

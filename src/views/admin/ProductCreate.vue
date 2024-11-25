@@ -38,7 +38,21 @@
             </div>
             <div class="mb-4">
                 <label class="block font-semibold">Thẻ (Tags)</label>
-                <Tag v-model="product.tags" class="w-full" />
+                <MultiSelect v-model="product.tags" :options="tags" optionLabel="name" placeholder="Thêm tags" :filter="true" class="w-full max-w-full">
+                    <template #value="slotProps">
+                        <div class="inline-flex items-center py-1 px-2 bg-primary text-primary-contrast rounded-border mr-2" v-for="option of slotProps.value" :key="option.id">
+                            <div>#{{ option.name }}</div>
+                        </div>
+                        <template v-if="!slotProps.value || slotProps.value.length === 0">
+                            <div class="p-1">Thêm tags</div>
+                        </template>
+                    </template>
+                    <template #option="slotProps">
+                        <div class="flex items-center">
+                            <div>#{{ slotProps.option.name }}</div>
+                        </div>
+                    </template>
+                </MultiSelect>
             </div>
             <div class="mb-4">
                 <label class="block font-semibold">Số lượng đã bán</label>
@@ -90,6 +104,10 @@ const statusOptions = [
     { id: 'out_of_stock', name: 'Hết hàng' }
 ];
 const brands = [{ id: 'dotmod', name: 'dotmod' }];
+const tags = [
+    { id: 'vape', name: 'Vape' },
+    { id: 'cks', name: 'CKS' }
+];
 
 function handleUploadThumbnail(binary) {
     thumbnail.value = binary;
