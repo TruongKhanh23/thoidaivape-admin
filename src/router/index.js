@@ -39,9 +39,24 @@ const routes = [
                 component: () => import('@/views/admin/Profile.vue')
             },
             {
+                path: '/admin/products',
+                name: 'products',
+                component: () => import('@/views/admin/Products.vue')
+            },
+            {
+                path: '/admin/product-create',
+                name: 'product-create',
+                component: () => import('@/views/admin/ProductCreate.vue')
+            },
+            {
                 path: '/admin/sample-rich-text',
                 name: 'sample-rich-text',
                 component: () => import('@/views/admin/SampleRichText.vue')
+            },
+            {
+                path: '/admin/sample-upload-file',
+                name: 'sample-upload-file',
+                component: () => import('@/views/sample/SampleUploadFile.vue')
             },
             {
                 path: '/uikit/formlayout',
