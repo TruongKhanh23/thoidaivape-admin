@@ -56,7 +56,7 @@
         </div>
 
         <!-- Dialog tạo mới sản phẩm -->
-        <Dialog v-model:visible="productDialog" header="Tạo mới sản phẩm" :modal="true" :closable="true" :style="{ width: '650px' }">
+        <Dialog v-model:visible="productDialog" header="Tạo mới sản phẩm" :modal="true" :closable="true" :style="{ width: '1500px' }">
             <div>
                 <div class="mb-4">
                     <label class="block font-semibold">Tên sản phẩm</label>
@@ -66,13 +66,11 @@
                     <label class="block font-semibold">Mô tả ngắn</label>
                     <Textarea v-model="product.shortDescription" placeholder="Nhập mô tả ngắn" class="w-full" rows="3" />
                 </div>
-                <div class="mb-4">
-                    <label class="block font-semibold">Mô tả chi tiết</label>
-                    <RichTextEditor v-model="product.description" />
-                </div>
+
                 <div class="mb-4">
                     <label class="block font-semibold">Ảnh đại diện</label>
-                    <FileUpload name="thumbnail" @uploader="onUpload" :multiple="false" accept="image/*" :maxFileSize="1000000" customUpload />
+                    <Toast />
+                    <FileUpload ref="fileupload" mode="basic" name="demo[]" accept="image/*" :maxFileSize="1000000" @uploader="onUpload" customUpload />
                 </div>
                 <div class="mb-4">
                     <label class="block font-semibold">Giá</label>
@@ -85,6 +83,7 @@
                 <div class="mb-4">
                     <label class="block font-semibold">Ảnh sản phẩm</label>
                     <FileUpload name="images" @uploader="onUpload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload />
+                    <Button label="Upload" @click="upload" severity="secondary" />
                 </div>
                 <div class="mb-4">
                     <label class="block font-semibold">Bộ sưu tập</label>
@@ -114,6 +113,12 @@
                     <label class="block font-semibold">Thương hiệu</label>
                     <Dropdown v-model="product.brand" :options="brands" optionLabel="name" class="w-full" />
                 </div>
+
+                <div class="mb-4">
+                    <label class="block font-semibold">Mô tả chi tiết</label>
+                    <HyperTextEditor v-model="product.description" />
+                </div>
+
                 <div class="flex justify-end gap-2">
                     <Button label="Hủy" icon="pi pi-times" class="p-button-text" @click="productDialog = false" />
                     <Button label="Lưu" icon="pi pi-check" class="p-button-primary" @click="saveProduct" />
@@ -159,6 +164,10 @@
 import { ref } from 'vue';
 import { collection, query, updateDoc, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
+import HyperTextEditor from '@/components/Sample/HyperTextEditor.vue';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 const submitted = ref(false);
 const loading = ref(false);
@@ -262,4 +271,9 @@ function openNew() {
     submitted.value = false;
     productDialog.value = true;
 }
+
+function onUpload() {
+    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+}
+const fileupload = ref();
 </script>
