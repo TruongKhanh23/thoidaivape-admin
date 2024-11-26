@@ -30,7 +30,7 @@
             </div>
             <div class="mb-4">
                 <label for="collectionId" class="block font-semibold">Bộ sưu tập</label>
-                <Dropdown v-model="product.collectionId" :options="collections" optionLabel="name"  placeholder="Chọn bộ sưu tập" class="w-full" />
+                <Dropdown v-model="product.collection" :options="collections" optionLabel="name"  placeholder="Chọn bộ sưu tập" class="w-full" />
             </div>
             <div class="mb-4">
                 <label for="status" class="block font-semibold">Trạng thái</label>
@@ -88,8 +88,8 @@
 import ImageUpload from '@/components/Input/ImageUpload.vue';
 import RichTextEditor from '@/components/Input/RichTextEditor.vue';
 import { ref } from 'vue';
-//import { collection, updateDoc, addDoc, doc } from 'firebase/firestore';
-//import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
+import { collection, updateDoc, addDoc, doc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -98,43 +98,54 @@ const thumbnail = ref();
 const images = ref([]);
 const description = ref();
 
-const collections = [{ id: 'freebase', name: 'Freebase' }];
-const statusOptions = [
-    { id: 'in_stock', name: 'Còn hàng' },
-    { id: 'out_of_stock', name: 'Hết hàng' }
-];
-const brands = [{ id: 'dotmod', name: 'dotmod' }];
 const tags = [
     { id: 'vape', name: 'Vape' },
     { id: 'cks', name: 'CKS' }
 ];
+const collections = [
+    { id: 'podsystem', name: 'Podsystem' },
+    { id: 'vape-box', name: 'Vape Box' },
+    { id: 'freebase', name: 'Freebase' },
+    { id: 'occ-coil', name: 'Occ Coil' },
+    { id: 'pod-head', name: 'Pod Head' },
+    { id: 'saltnic', name: 'Saltnic' }
+]; // Thêm bộ sưu tập thực tế của bạn ở đây
+const statusOptions = [
+    { id: 'in_stock', name: 'Còn hàng' },
+    { id: 'out_of_stock', name: 'Hết hàng' }
+];
+const brands = [
+    { id: 'oxva', name: 'Oxva' },
+    { id: 'aspire', name: 'Aspire' },
+    { id: 'fitpod', name: 'Fitpod' },
+    { id: 'lost-vape', name: 'Lost Vape' },
+    { id: 'voopoo', name: 'Voopoo' },
+    { id: 'geek-vape', name: 'Geek Vape' },
+    { id: 'dovpo', name: 'Dovpo' },
+    { id: 'sp2s', name: 'SP2S' },
+    { id: 'romio-astro', name: 'Romio Astro' },
+    { id: 'dotmod', name: 'dotMod' }
+];
 
 function handleUploadThumbnail(binary) {
     thumbnail.value = binary;
-    console.log('Thumbnail Data:', thumbnail.value);
 }
 
 function handleUploadProductImages(data) {
     images.value = Array.isArray(data) ? data : [data];
-    console.log('images Data:', images.value);
 }
 
 function handleUpdateRichText(content) {
     description.value = content;
-    console.log('Description Data:', description.value);
 }
 
 const saveProduct = async () => {
     const data = { ...product.value, thumbnail: thumbnail.value, images: images.value, description: description.value };
 
     if (product.value.id) {
-        // Cập nhật sản phẩm
-        console.log('data', data);
-        //await updateDoc(doc(db, 'products', product.value.id), data);
+        await updateDoc(doc(db, 'products', product.value.id), data);
     } else {
-        // Tạo sản phẩm mới
-        console.log('data', data);
-        //await addDoc(collection(db, 'products'), data);
+        await addDoc(collection(db, 'products'), data);
     }
     router.push('/admin/products');
 };
