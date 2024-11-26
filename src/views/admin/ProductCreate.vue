@@ -3,41 +3,41 @@
         <div class="font-semibold text-xl mb-4">Thêm mới sản phẩm</div>
         <div>
             <div class="mb-4">
-                <label class="block font-semibold">Tên sản phẩm</label>
+                <label for=".name" class="block font-semibold">Tên sản phẩm</label>
                 <InputText v-model="product.name" placeholder="Nhập tên sản phẩm" class="w-full" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Mô tả ngắn</label>
+                <label for="shortDescription" class="block font-semibold">Mô tả ngắn</label>
                 <Textarea v-model="product.shortDescription" placeholder="Nhập mô tả ngắn" class="w-full" rows="3" />
             </div>
 
             <div class="mb-4">
-                <label class="block font-semibold">Ảnh đại diện</label>
+                <label for="thumbnail" class="block font-semibold">Ảnh đại diện</label>
                 <Toast />
                 <ImageUpload idPrefix="thumbnail" :multiple="false" @binary-selected="handleUploadThumbnail" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Giá</label>
+                <label for="price" class="block font-semibold">Giá</label>
                 <InputNumber v-model="product.price" :min="0" class="w-full" mode="decimal" showButtons />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Giá khuyến mãi</label>
+                <label for="salePrice" class="block font-semibold">Giá khuyến mãi</label>
                 <InputNumber v-model="product.salePrice" :min="0" class="w-full" mode="decimal" showButtons />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Ảnh sản phẩm</label>
+                <label for="product-images" class="block font-semibold">Ảnh sản phẩm</label>
                 <ImageUpload idPrefix="product-images" :multiple="true" @binary-selected="handleUploadProductImages" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Bộ sưu tập</label>
+                <label for="collectionId" class="block font-semibold">Bộ sưu tập</label>
                 <Dropdown v-model="product.collectionId" :options="collections" optionLabel="name" class="w-full" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Trạng thái</label>
+                <label for="status" class="block font-semibold">Trạng thái</label>
                 <Dropdown v-model="product.status" :options="statusOptions" optionLabel="name" class="w-full" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Thẻ (Tags)</label>
+                <label for="tags" class="block font-semibold">Thẻ (Tags)</label>
                 <MultiSelect v-model="product.tags" :options="tags" optionLabel="name" placeholder="Thêm tags" :filter="true" class="w-full max-w-full">
                     <template #value="slotProps">
                         <div class="inline-flex items-center py-1 px-2 bg-primary text-primary-contrast rounded-border mr-2" v-for="option of slotProps.value" :key="option.id">
@@ -55,24 +55,24 @@
                 </MultiSelect>
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Số lượng đã bán</label>
+                <label for="soldAmount" class="block font-semibold">Số lượng đã bán</label>
                 <InputNumber v-model="product.soldAmount" :min="0" class="w-full" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Số hơi</label>
+                <label for="hits" class="block font-semibold">Số hơi</label>
                 <InputNumber v-model="product.hits" :min="0" class="w-full" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Công suất</label>
+                <label for="power" class="block font-semibold">Công suất</label>
                 <InputNumber v-model="product.power" :min="0" class="w-full" />
             </div>
             <div class="mb-4">
-                <label class="block font-semibold">Thương hiệu</label>
+                <label for="brand" class="block font-semibold">Thương hiệu</label>
                 <Dropdown v-model="product.brand" :options="brands" optionLabel="name" class="w-full" />
             </div>
 
             <div class="mb-4">
-                <label class="block font-semibold">Mô tả chi tiết</label>
+                <label for="product-description" class="block font-semibold">Mô tả chi tiết</label>
                 <RichTextEditor idPrefix="product-description" @richTextUpdated="handleUpdateRichText" v-model="product.description" />
             </div>
 
