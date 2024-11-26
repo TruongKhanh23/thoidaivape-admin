@@ -26,9 +26,9 @@
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên sản phẩm..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
-                            <Button v-if="checkAccountRights('create_product')" label="Tạo mới" icon="pi pi-plus" @click="navigateToProductCreate" />
+                            <Button v-if="canCreateProduct" label="Tạo mới" icon="pi pi-plus" @click="navigateToProductCreate" />
                             <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
-                            <Button v-if="checkAccountRights('delete_product')" label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
+                            <Button v-if="canDeleteProduct" label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
                         </div>
                     </div>
                 </template>
@@ -53,10 +53,10 @@
                     </template>
                 </Column>
                 <Column field="updatedBy" header="Cập nhật bởi" sortable></Column>
-                <Column v-if="checkAccountRights('update_product') || checkAccountRights('delete_product')" :exportable="false" style="min-width: 8rem" header="Hành động">
+                <Column v-if="canUpdateProduct || canDeleteProduct" :exportable="false" style="min-width: 8rem" header="Hành động">
                     <template #body="slotProps">
-                        <Button v-if="checkAccountRights('update_product')" icon="pi pi-pencil" class="mr-2" @click="editProduct(slotProps.data)" />
-                        <Button v-if="checkAccountRights('delete_product')" icon="pi pi-trash" class="text-red-500" @click="confirmDeleteProduct(slotProps.data)" />
+                        <Button v-if="canUpdateProduct" icon="pi pi-pencil" class="mr-2" @click="editProduct(slotProps.data)" />
+                        <Button v-if="canDeleteProduct" icon="pi pi-trash" class="text-red-500" @click="confirmDeleteProduct(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -102,7 +102,7 @@ import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { formatDate } from '@/utils';
 import { useRouter } from 'vue-router';
-import { checkAccountRights } from "@/composables/authentication"
+import { canCreateProduct, canReadProduct, canUpdateProduct, canDeleteProduct } from "@/composables/rights"
 
 const router = useRouter()
 
