@@ -44,9 +44,9 @@ const routes = [
                 component: () => import('@/views/admin/Products.vue')
             },
             {
-                path: '/admin/product-create',
-                name: 'product-create',
-                component: () => import('@/views/admin/ProductCreate.vue')
+                path: '/admin/product-action/:action/:id',
+                name: 'product-action',
+                component: () => import('@/views/admin/ProductAction.vue')
             },
             {
                 path: '/admin/sample-rich-text',

@@ -99,7 +99,8 @@
 import { ref } from 'vue';
 import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
-import { formatDate } from "@/utils"
+import { formatDate } from '@/utils';
+import router from '@/router';
 
 const loading = ref(false);
 const products = ref([]);
@@ -112,7 +113,6 @@ const pageSize = ref(10);
 const currentPage = ref(0);
 const totalRecords = ref(0);
 
-
 // Hàm tìm kiếm
 const onSearch = () => {
     getPaginatedProducts();
@@ -123,16 +123,14 @@ const getPaginatedProducts = async () => {
     const q = query(collection(db, 'products'));
     const querySnapshot = await getDocs(q);
     products.value = querySnapshot.docs.map((doc) => {
-
-        return ({ id: doc.id, ...doc.data() })
+        return { id: doc.id, ...doc.data() };
     });
     console.log("products.value", products.value);
 
     totalRecords.value = products.value.length;
 };
 
-getPaginatedProducts()
-
+getPaginatedProducts();
 
 // Hàm xóa sản phẩm
 const deleteProduct = async (id) => {
@@ -151,8 +149,7 @@ const deleteSelectedProducts = async () => {
 
 // Hàm chỉnh sửa sản phẩm
 const editProduct = (selectedProduct) => {
-    productDialog.value = true;
-    product.value = { ...selectedProduct };
+    router.push({ name: 'product-action', params: { action: 'update', id: selectedProduct.id } });
 };
 
 // Hàm xác nhận xóa sản phẩm
@@ -175,6 +172,4 @@ function formatCurrency(value) {
     }
     return '0 đ'; // Xử lý trường hợp giá trị không hợp lệ
 }
-
-
 </script>

@@ -1,6 +1,6 @@
 <template>
     <div className="card">
-        <div class="font-semibold text-xl mb-4">Thêm mới sản phẩm</div>
+        <div class="font-semibold text-xl mb-4">Thêm mới sản phẩm {{ productId }}</div>
         <div>
             <div class="mb-4">
                 <label for=".name" class="block font-semibold">Tên sản phẩm</label>
@@ -14,7 +14,7 @@
             <div class="mb-4">
                 <label for="thumbnail" class="block font-semibold">Ảnh đại diện</label>
                 <Toast />
-                <ImageUpload idPrefix="thumbnail" :multiple="false" @binary-selected="handleUploadThumbnail" />
+                <ImageUpload idPrefix="thumbnail" :multiple="false" @binary-selected="handleUploadThumbnail" :initialBinaries="[product.thumbnail]" />
             </div>
             <div class="mb-4">
                 <label for="price" class="block font-semibold">Giá</label>
@@ -26,7 +26,7 @@
             </div>
             <div class="mb-4">
                 <label for="product-images" class="block font-semibold">Ảnh sản phẩm</label>
-                <ImageUpload idPrefix="product-images" :multiple="true" @binary-selected="handleUploadProductImages" />
+                <ImageUpload idPrefix="product-images" :multiple="true" @binary-selected="handleUploadProductImages" :initialBinaries="product.images"/>
             </div>
             <div class="mb-4">
                 <label for="collectionId" class="block font-semibold">Bộ sưu tập</label>
@@ -73,7 +73,7 @@
 
             <div class="mb-4">
                 <label for="product-description" class="block font-semibold">Mô tả chi tiết</label>
-                <RichTextEditor idPrefix="product-description" @richTextUpdated="handleUpdateRichText" v-model="product.description" />
+                <RichTextEditor idPrefix="product-description" @richTextUpdated="handleUpdateRichText" v-model="product.description" :initialContent="product.description" />
             </div>
 
             <div class="flex justify-end gap-2">
@@ -87,15 +87,33 @@
 <script setup>
 import ImageUpload from '@/components/Input/ImageUpload.vue';
 import RichTextEditor from '@/components/Input/RichTextEditor.vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { collection, updateDoc, addDoc, doc } from 'firebase/firestore';
-import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
-import { useRouter } from 'vue-router';
+import { db } from '@/firebaseConfig';
+import { getProductById } from '@/composables/product';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
 const store = useStore();
+const route = useRoute();
 const router = useRouter();
+
+const action = computed(() => route.params.action);
+const productId = computed(() => route.params.id);
+
 const product = ref({});
+
+onMounted(async () => {
+    try {
+        if (action.value == 'update') {
+            const data = await getProductById(productId.value);
+            product.value = data;
+        }
+    } catch (error) {
+        console.error('Error loading account data:', error.message);
+    }
+});
+
 const thumbnail = ref();
 const images = ref([]);
 const description = ref();
@@ -147,9 +165,9 @@ const saveProduct = async () => {
     const currentDate = new Date();
     const data = ref({
         ...product.value,
-        thumbnail: thumbnail.value ?? "",
-        images: images.value ?? "",
-        description: description.value ?? "",
+        thumbnail: thumbnail.value ?? product.value.thumbnail ?? "",
+        images: images.value ?? product.value.thumbnail ?? "",
+        description: description.value ?? '',
         updatedAt: currentDate,
         updatedBy: account.value.email
     });
