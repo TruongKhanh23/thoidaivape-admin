@@ -26,7 +26,7 @@
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên sản phẩm..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
-                            <Button label="Tạo mới" icon="pi pi-plus" class="mr-2" @click="navigateToProductCreate" />
+                            <Button label="Tạo mới" icon="pi pi-plus" @click="navigateToProductCreate" />
                             <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
                             <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
                         </div>

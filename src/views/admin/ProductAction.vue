@@ -1,6 +1,6 @@
 <template>
     <div className="card">
-        <div class="font-semibold text-xl mb-4">Thêm mới sản phẩm {{ productId }}</div>
+        <div class="font-semibold text-xl mb-4">{{ tittle }} sản phẩm </div>
         <div>
             <div class="mb-4">
                 <label for=".name" class="block font-semibold">Tên sản phẩm</label>
@@ -77,7 +77,7 @@
             </div>
 
             <div class="flex justify-end gap-2">
-                <Button label="Hủy" icon="pi pi-times" class="p-button-text" @click="productDialog = false" />
+                <Button label="Hủy" icon="pi pi-times" class="p-button-text" @click="handleOnCancle" />
                 <Button label="Lưu" icon="pi pi-check" class="p-button-primary" @click="saveProduct" />
             </div>
         </div>
@@ -100,6 +100,7 @@ const router = useRouter();
 
 const action = computed(() => route.params.action);
 const productId = computed(() => route.params.id);
+const tittle = computed(() => action.value == "update" ? "Chỉnh sửa" : "Thêm mới")
 
 const product = ref({});
 
@@ -184,4 +185,8 @@ const saveProduct = async () => {
     }
     router.push('/admin/products');
 };
+
+function handleOnCancle () {
+    router.push("/admin/products")
+}
 </script>
