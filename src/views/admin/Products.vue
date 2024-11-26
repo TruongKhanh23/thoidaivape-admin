@@ -33,18 +33,26 @@
                 </template>
 
                 <Column selectionMode="multiple" style="width: 3rem"></Column>
-                <Column header="Ảnh sản phẩm" field="thumbnail">
+                <Column header="Ảnh sản phẩm" field="thumbnail" style="min-width: 9rem">
                     <template #body="slotProps">
-                        <img :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.thumbnail}`" :alt="slotProps.data.thumbnail" class="rounded" style="width: 64px" />
+                        <img :src="`${slotProps.data.thumbnail}`" :alt="slotProps.data.thumbnail" class="rounded" style="width: 64px" />
                     </template>
                 </Column>
-                <Column field="name" header="Tên sản phẩm" sortable></Column>
-                <Column field="price" header="Giá" sortable></Column>
-                <Column field="collection" header="Bộ sưu tập" sortable></Column>
-                <Column field="status" header="Trạng thái" sortable></Column>
-                <Column field="updatedAt" header="Cập nhật lúc" sortable></Column>
+                <Column field="name" header="Tên sản phẩm" sortable style="min-width: 10rem"></Column>
+                <Column field="price" header="Giá" sortable style="min-width: 8rem">
+                    <template #body="slotProps">
+                        {{ formatCurrency(slotProps.data.price) }}
+                    </template>
+                </Column>
+                <Column field="collection.name" header="Bộ sưu tập" sortable style="min-width: 9rem"></Column>
+                <Column field="status.name" header="Trạng thái" sortable style="min-width: 9rem"></Column>
+                <Column field="updatedAt" header="Cập nhật lúc" sortable style="min-width: 5rem">
+                    <template #body="slotProps">
+                        {{ formatDate(slotProps.data.updatedAt) }}
+                    </template>
+                </Column>
                 <Column field="updatedBy" header="Cập nhật bởi" sortable></Column>
-                <Column :exportable="false" style="min-width: 12rem" header="Hành động">
+                <Column :exportable="false" style="min-width: 8rem" header="Hành động">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" class="mr-2" @click="editProduct(slotProps.data)" />
                         <Button icon="pi pi-trash" class="text-red-500" @click="confirmDeleteProduct(slotProps.data)" />
@@ -91,7 +99,7 @@
 import { ref } from 'vue';
 import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
-
+import { formatDate } from "@/utils"
 
 const loading = ref(false);
 const products = ref([]);
@@ -104,6 +112,7 @@ const pageSize = ref(10);
 const currentPage = ref(0);
 const totalRecords = ref(0);
 
+
 // Hàm tìm kiếm
 const onSearch = () => {
     getPaginatedProducts();
@@ -113,11 +122,17 @@ const onSearch = () => {
 const getPaginatedProducts = async () => {
     const q = query(collection(db, 'products'));
     const querySnapshot = await getDocs(q);
-    products.value = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    products.value = querySnapshot.docs.map((doc) => {
+
+        return ({ id: doc.id, ...doc.data() })
+    });
     console.log("products.value", products.value);
 
     totalRecords.value = products.value.length;
 };
+
+getPaginatedProducts()
+
 
 // Hàm xóa sản phẩm
 const deleteProduct = async (id) => {
@@ -150,4 +165,16 @@ const confirmDeleteProduct = (selectedProduct) => {
 const confirmDeleteSelected = () => {
     deleteSelectedProductsDialog.value = true;
 };
+
+function formatCurrency(value) {
+    if (value) {
+        // Format giá trị thành chuỗi số có dấu phẩy
+        const formattedValue = new Intl.NumberFormat('vi-VN').format(value);
+        // Thêm chữ "đ" ở cuối
+        return `${formattedValue} đ`;
+    }
+    return '0 đ'; // Xử lý trường hợp giá trị không hợp lệ
+}
+
+
 </script>

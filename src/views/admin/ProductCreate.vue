@@ -18,7 +18,7 @@
             </div>
             <div class="mb-4">
                 <label for="price" class="block font-semibold">Giá</label>
-                <InputNumber v-model="product.price" :min="0" class="w-full" mode="decimal" showButtons  placeholder="Ví dụ: 100.000" />
+                <InputNumber v-model="product.price" :min="0" class="w-full" mode="decimal" showButtons placeholder="Ví dụ: 100.000" />
             </div>
             <div class="mb-4">
                 <label for="salePrice" class="block font-semibold">Giá khuyến mãi</label>
@@ -30,11 +30,11 @@
             </div>
             <div class="mb-4">
                 <label for="collectionId" class="block font-semibold">Bộ sưu tập</label>
-                <Dropdown v-model="product.collection" :options="collections" optionLabel="name"  placeholder="Chọn bộ sưu tập" class="w-full" />
+                <Dropdown v-model="product.collection" :options="collections" optionLabel="name" placeholder="Chọn bộ sưu tập" class="w-full" />
             </div>
             <div class="mb-4">
                 <label for="status" class="block font-semibold">Trạng thái</label>
-                <Dropdown v-model="product.status" :options="statusOptions" optionLabel="name"  placeholder="Chọn trạng thái sản phẩm" class="w-full" />
+                <Dropdown v-model="product.status" :options="statusOptions" optionLabel="name" placeholder="Chọn trạng thái sản phẩm" class="w-full" />
             </div>
             <div class="mb-4">
                 <label for="tags" class="block font-semibold">Thẻ (Tags)</label>
@@ -68,7 +68,7 @@
             </div>
             <div class="mb-4">
                 <label for="brand" class="block font-semibold">Thương hiệu</label>
-                <Dropdown v-model="product.brand" :options="brands" optionLabel="name" class="w-full"  placeholder="Chọn thương hiệu của sản phẩm" />
+                <Dropdown v-model="product.brand" :options="brands" optionLabel="name" class="w-full" placeholder="Chọn thương hiệu của sản phẩm" />
             </div>
 
             <div class="mb-4">
@@ -87,16 +87,20 @@
 <script setup>
 import ImageUpload from '@/components/Input/ImageUpload.vue';
 import RichTextEditor from '@/components/Input/RichTextEditor.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { collection, updateDoc, addDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
+const store = useStore();
 const router = useRouter();
 const product = ref({});
 const thumbnail = ref();
 const images = ref([]);
 const description = ref();
+
+const account = computed(() => store.getters.getAccount);
 
 const tags = [
     { id: 'vape', name: 'Vape' },
@@ -140,12 +144,24 @@ function handleUpdateRichText(content) {
 }
 
 const saveProduct = async () => {
-    const data = { ...product.value, thumbnail: thumbnail.value, images: images.value, description: description.value };
+    const currentDate = new Date();
+    const data = ref({
+        ...product.value,
+        thumbnail: thumbnail.value ?? "",
+        images: images.value ?? "",
+        description: description.value ?? "",
+        updatedAt: currentDate,
+        updatedBy: account.value.email
+    });
 
     if (product.value.id) {
-        await updateDoc(doc(db, 'products', product.value.id), data);
+        await updateDoc(doc(db, 'products', product.value.id), data.value);
     } else {
-        await addDoc(collection(db, 'products'), data);
+        await addDoc(collection(db, 'products'), {
+            ...data.value,
+            createdAt: currentDate,
+            createdBy: account.value.email
+        });
     }
     router.push('/admin/products');
 };
