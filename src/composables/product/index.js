@@ -7,7 +7,6 @@ export const getProductById = async (id) => {
         const accountDoc = await getDoc(accountDocRef);
 
         if (accountDoc.exists()) {
-            console.log('Product data:', accountDoc.data());
             return {
                 id,
                 ...accountDoc.data()

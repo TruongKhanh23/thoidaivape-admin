@@ -120,8 +120,6 @@ export default defineComponent({
 
             if (props.initialBinaries[0]) {
                 for (const binary of props.initialBinaries) {
-                    console.log('went for');
-
                     const preview = binary;
                     previews.push(preview);
 
@@ -140,7 +138,6 @@ export default defineComponent({
             async (newBinaries) => {
                 if (newBinaries && newBinaries.length > 0) {
                     await initializeFromBinaries();
-                    console.log('imagePreviews.value', imagePreviews.value.length);
                 }
             },
             { immediate: true }

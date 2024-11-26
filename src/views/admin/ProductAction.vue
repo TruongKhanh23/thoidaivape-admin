@@ -163,10 +163,11 @@ function handleUpdateRichText(content) {
 
 const saveProduct = async () => {
     const currentDate = new Date();
+
     const data = ref({
         ...product.value,
         thumbnail: thumbnail.value ?? product.value.thumbnail ?? "",
-        images: images.value ?? product.value.thumbnail ?? "",
+        images: images.value.length > 0 ? images.value : product.value.images,
         description: description.value ?? '',
         updatedAt: currentDate,
         updatedBy: account.value.email

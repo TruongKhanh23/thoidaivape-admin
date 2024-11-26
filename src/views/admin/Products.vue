@@ -129,7 +129,6 @@ const getPaginatedProducts = async () => {
     products.value = querySnapshot.docs.map((doc) => {
         return { id: doc.id, ...doc.data() };
     });
-    console.log('products.value', products.value);
 
     totalRecords.value = products.value.length;
 };

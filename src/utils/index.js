@@ -1,6 +1,4 @@
 export function formatDate(date) {
-    console.log("date", date);
-
     // Kiểm tra nếu `date` là dạng `{ seconds, nanoseconds }`
     if (date && typeof date === 'object' && 'seconds' in date && 'nanoseconds' in date) {
         // Chuyển đổi timestamp thành đối tượng `Date`
