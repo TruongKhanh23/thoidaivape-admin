@@ -26,9 +26,9 @@
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên sản phẩm..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
-                            <Button v-if="checkAccountRights('create-product')" label="Tạo mới" icon="pi pi-plus" @click="navigateToProductCreate" />
+                            <Button v-if="checkAccountRights('create_product')" label="Tạo mới" icon="pi pi-plus" @click="navigateToProductCreate" />
                             <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
-                            <Button v-if="checkAccountRights('delete-product')" label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
+                            <Button v-if="checkAccountRights('delete_product')" label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
                         </div>
                     </div>
                 </template>
@@ -53,10 +53,10 @@
                     </template>
                 </Column>
                 <Column field="updatedBy" header="Cập nhật bởi" sortable></Column>
-                <Column v-if="checkAccountRights('update-product') || checkAccountRights('delete-product')" :exportable="false" style="min-width: 8rem" header="Hành động">
+                <Column v-if="checkAccountRights('update_product') || checkAccountRights('delete_product')" :exportable="false" style="min-width: 8rem" header="Hành động">
                     <template #body="slotProps">
-                        <Button v-if="checkAccountRights('update-product')" icon="pi pi-pencil" class="mr-2" @click="editProduct(slotProps.data)" />
-                        <Button v-if="checkAccountRights('delete-product')" icon="pi pi-trash" class="text-red-500" @click="confirmDeleteProduct(slotProps.data)" />
+                        <Button v-if="checkAccountRights('update_product')" icon="pi pi-pencil" class="mr-2" @click="editProduct(slotProps.data)" />
+                        <Button v-if="checkAccountRights('delete_product')" icon="pi pi-trash" class="text-red-500" @click="confirmDeleteProduct(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
