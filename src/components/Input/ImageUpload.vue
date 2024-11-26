@@ -4,9 +4,12 @@
             <Button icon="pi pi-upload" @click="triggerFileInput" />
             <div v-if="files.length">
                 <div v-if="files.length == 1">
-                    <div v-for="(file, index) in files" :key="index" class="flex flex-row items-center space-x-4">
-                        <img :src="imagePreviews[index]" alt="preview" class="w-10 h-10 object-cover rounded-md" />
-                        <span>{{ file.name || `Ảnh đại diện sản phẩm` }}</span>
+                    <div v-if="imagePreviews[0]" class="flex flex-row items-center space-x-4">
+                        <img :src="imagePreviews[0]" alt="preview" class="w-10 h-10 object-cover rounded-md" />
+                        <span>{{ files[0].name }}</span>
+                    </div>
+                    <div v-else class="flex flex-row items-center space-x-4">
+                        <span>Vui lòng chọn ảnh</span>
                     </div>
                 </div>
                 <div v-else class="flex flex-row space-x-4">
@@ -15,52 +18,45 @@
                     </div>
                 </div>
             </div>
-            <label v-if="!files.length" for="file">Please select files to upload</label>
+            <label v-if="!files.length" for="file">Vui lòng chọn ảnh</label>
 
-            <input
-                type="file"
-                :id="inputId"
-                :accept="accept"
-                :multiple="multiple"
-                @change="handleFileChange"
-                class="hidden"
-            />
+            <input type="file" :id="inputId" :accept="accept" :multiple="multiple" @change="handleFileChange" class="hidden" />
         </div>
         <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
     </div>
 </template>
 
 <script>
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, ref, watch } from 'vue';
 
 export default defineComponent({
     props: {
         idPrefix: {
             type: String,
-            required: true, // Đảm bảo id duy nhất
+            required: true // Đảm bảo id duy nhất
         },
         multiple: {
             type: Boolean,
-            default: false,
+            default: false
         },
         maxSize: {
             type: Number,
-            default: 500 * 1024, // Default: 500KB
+            default: 500 * 1024 // Default: 500KB
         },
         accept: {
             type: String,
-            default: "image/*",
+            default: 'image/*'
         },
         initialBinaries: {
             type: Array,
-            default: () => [], // Giá trị khởi tạo là mảng binary
-        },
+            default: null // Giá trị khởi tạo là mảng binary
+        }
     },
-    emits: ["binary-selected", "error"],
+    emits: ['binary-selected', 'error'],
     setup(props, { emit }) {
         const files = ref([]); // Lưu trữ các file
         const imagePreviews = ref([]); // Lưu trữ URL preview
-        const errorMessage = ref("");
+        const errorMessage = ref('');
 
         // Tạo id động từ idPrefix
         const inputId = `${props.idPrefix}-file-input`;
@@ -73,7 +69,7 @@ export default defineComponent({
             const previews = [];
 
             for (const file of selectedFiles) {
-                if (!file.type.startsWith("image/")) {
+                if (!file.type.startsWith('image/')) {
                     errorMessage.value = `Invalid file type for ${file.name}. Please select image files only.`;
                     continue;
                 }
@@ -90,11 +86,11 @@ export default defineComponent({
             if (validFiles.length) {
                 files.value = validFiles;
                 imagePreviews.value = previews;
-                errorMessage.value = "";
+                errorMessage.value = '';
 
                 // Emit binary data
                 const binaryData = await Promise.all(validFiles.map((file) => convertToBinary(file)));
-                emit("binary-selected", props.multiple ? binaryData : binaryData[0]);
+                emit('binary-selected', props.multiple ? binaryData : binaryData[0]);
             } else {
                 files.value = [];
                 imagePreviews.value = [];
@@ -122,12 +118,16 @@ export default defineComponent({
             const previews = [];
             const virtualFiles = [];
 
-            for (const binary of props.initialBinaries) {
-                const preview = binary;
-                previews.push(preview);
+            if (props.initialBinaries[0]) {
+                for (const binary of props.initialBinaries) {
+                    console.log('went for');
 
-                const dummyFile = new File([""], "", { type: "image/png" });
-                virtualFiles.push(dummyFile);
+                    const preview = binary;
+                    previews.push(preview);
+
+                    const dummyFile = new File([''], '', { type: 'image/png' });
+                    virtualFiles.push(dummyFile);
+                }
             }
 
             files.value = virtualFiles;
@@ -140,6 +140,7 @@ export default defineComponent({
             async (newBinaries) => {
                 if (newBinaries && newBinaries.length > 0) {
                     await initializeFromBinaries();
+                    console.log('imagePreviews.value', imagePreviews.value.length);
                 }
             },
             { immediate: true }
@@ -151,8 +152,8 @@ export default defineComponent({
             triggerFileInput,
             handleFileChange,
             errorMessage,
-            inputId,
+            inputId
         };
-    },
+    }
 });
 </script>
