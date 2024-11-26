@@ -44,7 +44,7 @@ const routes = [
                 component: () => import('@/views/admin/Products.vue')
             },
             {
-                path: '/admin/product-action/:action/:id',
+                path: '/admin/product-action/:action/:id?',
                 name: 'product-action',
                 component: () => import('@/views/admin/ProductAction.vue')
             },

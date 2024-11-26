@@ -123,7 +123,7 @@ export default defineComponent({
             const virtualFiles = [];
 
             for (const binary of props.initialBinaries) {
-                const preview = binary; // Assume binary is already a Data URL
+                const preview = binary;
                 previews.push(preview);
 
                 const dummyFile = new File([""], "", { type: "image/png" });

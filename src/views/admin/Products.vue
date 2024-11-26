@@ -26,6 +26,7 @@
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên sản phẩm..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
+                            <Button label="Tạo mới" icon="pi pi-plus" class="mr-2" @click="navigateToProductCreate" />
                             <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
                             <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
                         </div>
@@ -100,7 +101,9 @@ import { ref } from 'vue';
 import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { formatDate } from '@/utils';
-import router from '@/router';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const loading = ref(false);
 const products = ref([]);
@@ -112,6 +115,7 @@ const filters = ref({ global: { value: '' } });
 const pageSize = ref(10);
 const currentPage = ref(0);
 const totalRecords = ref(0);
+
 
 // Hàm tìm kiếm
 const onSearch = () => {
@@ -125,7 +129,7 @@ const getPaginatedProducts = async () => {
     products.value = querySnapshot.docs.map((doc) => {
         return { id: doc.id, ...doc.data() };
     });
-    console.log("products.value", products.value);
+    console.log('products.value', products.value);
 
     totalRecords.value = products.value.length;
 };
@@ -171,5 +175,9 @@ function formatCurrency(value) {
         return `${formattedValue} đ`;
     }
     return '0 đ'; // Xử lý trường hợp giá trị không hợp lệ
+}
+
+function navigateToProductCreate(){
+    router.push("/admin/product-action/create")
 }
 </script>
