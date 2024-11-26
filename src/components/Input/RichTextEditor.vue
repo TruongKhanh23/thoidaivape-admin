@@ -25,15 +25,21 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Import Quill CSS
 
 export default {
     name: 'RichTextEditor',
-    setup(_, { emit }) {
+    props: {
+        initialContent: {
+            type: String,
+            default: ''
+        }
+    },
+    setup(props, { emit }) {
         const editor = ref(null);
-        const editorContent = ref(''); // Lưu trữ nội dung editor
+        const editorContent = ref(props.initialContent); // Lưu trữ nội dung editor
         const numRows = ref(3); // Mặc định số dòng là 3
         const numColumns = ref(3); // Mặc định số cột là 3
         const isExceedMaxSize = ref(false); // Biến trạng thái kiểm tra dung lượng
@@ -51,6 +57,12 @@ export default {
                 }
             });
 
+            if (props.initialContent) {
+                quillInstance.root.innerHTML = props.initialContent;
+                editorContent.value = props.initialContent;
+                updateTotalBytes(); // Cập nhật tổng số byte từ nội dung ban đầu
+            }
+
             // Theo dõi sự thay đổi trong nội dung của Quill
             quillInstance.on('text-change', () => {
                 editorContent.value = quillInstance.root.innerHTML;
@@ -63,6 +75,14 @@ export default {
             nextTick(() => {
                 applyTableCSS();
             });
+        });
+
+        watch(() => props.initialContent, (newContent) => {
+            if (quillInstance && newContent !== editorContent.value) {
+                quillInstance.root.innerHTML = newContent;
+                editorContent.value = newContent;
+                updateTotalBytes();
+            }
         });
 
         // Hàm kiểm tra dung lượng của nội dung
