@@ -6,7 +6,7 @@
                 <div v-if="files.length == 1">
                     <div v-for="(file, index) in files" :key="index" class="flex flex-row items-center space-x-4">
                         <img :src="imagePreviews[index]" alt="preview" class="w-10 h-10 object-cover rounded-md" />
-                        <span>{{ file.name }}</span>
+                        <span>{{ file.name || `Ảnh đại diện sản phẩm` }}</span>
                     </div>
                 </div>
                 <div v-else class="flex flex-row space-x-4">
@@ -15,41 +15,52 @@
                     </div>
                 </div>
             </div>
-            <label v-if="!files.length">Please select files to upload</label>
+            <label v-if="!files.length" for="file">Please select files to upload</label>
 
-            <input type="file" :id="inputId" :accept="accept" :multiple="multiple" @change="handleFileChange" class="hidden" />
+            <input
+                type="file"
+                :id="inputId"
+                :accept="accept"
+                :multiple="multiple"
+                @change="handleFileChange"
+                class="hidden"
+            />
         </div>
         <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
     </div>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
     props: {
         idPrefix: {
             type: String,
-            required: true // Bắt buộc phải truyền vào để đảm bảo id duy nhất
+            required: true, // Đảm bảo id duy nhất
         },
         multiple: {
             type: Boolean,
-            default: false
+            default: false,
         },
         maxSize: {
             type: Number,
-            default: 500 * 1024 // Default: 500KB
+            default: 500 * 1024, // Default: 500KB
         },
         accept: {
             type: String,
-            default: 'image/*'
-        }
+            default: "image/*",
+        },
+        initialBinaries: {
+            type: Array,
+            default: () => [], // Giá trị khởi tạo là mảng binary
+        },
     },
-    emits: ['binary-selected', 'error'],
+    emits: ["binary-selected", "error"],
     setup(props, { emit }) {
-        const files = ref([]);
-        const imagePreviews = ref([]);
-        const errorMessage = ref('');
+        const files = ref([]); // Lưu trữ các file
+        const imagePreviews = ref([]); // Lưu trữ URL preview
+        const errorMessage = ref("");
 
         // Tạo id động từ idPrefix
         const inputId = `${props.idPrefix}-file-input`;
@@ -62,13 +73,11 @@ export default defineComponent({
             const previews = [];
 
             for (const file of selectedFiles) {
-                // Kiểm tra MIME type
-                if (!file.type.startsWith('image/')) {
+                if (!file.type.startsWith("image/")) {
                     errorMessage.value = `Invalid file type for ${file.name}. Please select image files only.`;
                     continue;
                 }
 
-                // Kiểm tra kích thước file
                 if (file.size > props.maxSize) {
                     errorMessage.value = `File ${file.name} exceeds the maximum size of ${props.maxSize / 1024}KB.`;
                     continue;
@@ -81,11 +90,11 @@ export default defineComponent({
             if (validFiles.length) {
                 files.value = validFiles;
                 imagePreviews.value = previews;
-                errorMessage.value = '';
+                errorMessage.value = "";
 
                 // Emit binary data
                 const binaryData = await Promise.all(validFiles.map((file) => convertToBinary(file)));
-                emit('binary-selected', props.multiple ? binaryData : binaryData[0]);
+                emit("binary-selected", props.multiple ? binaryData : binaryData[0]);
             } else {
                 files.value = [];
                 imagePreviews.value = [];
@@ -109,7 +118,41 @@ export default defineComponent({
             });
         };
 
-        return { files, imagePreviews, triggerFileInput, handleFileChange, errorMessage, inputId };
-    }
+        const initializeFromBinaries = async () => {
+            const previews = [];
+            const virtualFiles = [];
+
+            for (const binary of props.initialBinaries) {
+                const preview = binary; // Assume binary is already a Data URL
+                previews.push(preview);
+
+                const dummyFile = new File([""], "", { type: "image/png" });
+                virtualFiles.push(dummyFile);
+            }
+
+            files.value = virtualFiles;
+            imagePreviews.value = previews;
+        };
+
+        // Watch initialBinaries prop for changes
+        watch(
+            () => props.initialBinaries,
+            async (newBinaries) => {
+                if (newBinaries && newBinaries.length > 0) {
+                    await initializeFromBinaries();
+                }
+            },
+            { immediate: true }
+        );
+
+        return {
+            files,
+            imagePreviews,
+            triggerFileInput,
+            handleFileChange,
+            errorMessage,
+            inputId,
+        };
+    },
 });
 </script>
