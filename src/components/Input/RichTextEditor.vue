@@ -21,25 +21,25 @@
         <!-- Hiển thị nội dung dưới editor -->
         <div class="font-semibold text-xl my-4">Xem trước</div>
         <div class="mt-4 p-4 border rounded" v-html="formattedContent"></div>
-
-        <!-- Nút Cập nhật -->
-        <div class="mt-4 text-center">
-            <Button @click="saveContent" class="px-4 py-2 bg-blue-500 text-white rounded">Cập nhật</Button>
-        </div>
     </div>
 </template>
 
 <script>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Import Quill CSS
-import { getFirestore, doc, setDoc } from 'firebase/firestore'; // Firebase Firestore
 
 export default {
-    name: 'TextEditor',
-    setup() {
+    name: 'RichTextEditor',
+    props: {
+        initialContent: {
+            type: String,
+            default: ''
+        }
+    },
+    setup(props, { emit }) {
         const editor = ref(null);
-        const editorContent = ref(''); // Lưu trữ nội dung editor
+        const editorContent = ref(props.initialContent); // Lưu trữ nội dung editor
         const numRows = ref(3); // Mặc định số dòng là 3
         const numColumns = ref(3); // Mặc định số cột là 3
         const isExceedMaxSize = ref(false); // Biến trạng thái kiểm tra dung lượng
@@ -57,17 +57,32 @@ export default {
                 }
             });
 
+            if (props.initialContent) {
+                quillInstance.root.innerHTML = props.initialContent;
+                editorContent.value = props.initialContent;
+                updateTotalBytes(); // Cập nhật tổng số byte từ nội dung ban đầu
+            }
+
             // Theo dõi sự thay đổi trong nội dung của Quill
             quillInstance.on('text-change', () => {
                 editorContent.value = quillInstance.root.innerHTML;
                 checkContentSize(); // Kiểm tra dung lượng mỗi khi nội dung thay đổi
                 updateTotalBytes(); // Cập nhật tổng số byte khi có thay đổi nội dung
+                emit('richTextUpdated', editorContent.value);
             });
 
             // Đảm bảo CSS bảng được áp dụng sau khi tạo nội dung
             nextTick(() => {
                 applyTableCSS();
             });
+        });
+
+        watch(() => props.initialContent, (newContent) => {
+            if (quillInstance && newContent !== editorContent.value) {
+                quillInstance.root.innerHTML = newContent;
+                editorContent.value = newContent;
+                updateTotalBytes();
+            }
         });
 
         // Hàm kiểm tra dung lượng của nội dung
@@ -124,29 +139,6 @@ export default {
             totalBytes.value = new TextEncoder().encode(editorContent.value).length; // Tính tổng byte
         };
 
-        // Lưu nội dung vào Firestore
-        const saveContent = async () => {
-            if (isExceedMaxSize.value) {
-                alert('Dung lượng văn bản quá lớn! Vui lòng tóm gọn lại văn bản.');
-                return;
-            }
-
-            const db = getFirestore();
-            const docRef = doc(db, 'richtext', 'yourDocumentId'); // Thay đổi `yourDocumentId` cho phù hợp
-
-            try {
-                // Lưu nội dung của editor vào Firestore
-                await setDoc(docRef, {
-                    content: editorContent.value,
-                    timestamp: new Date() // Lưu thời gian cập nhật
-                });
-                alert('Cập nhật thành công!');
-            } catch (error) {
-                console.error('Lỗi khi lưu dữ liệu:', error);
-                alert('Có lỗi xảy ra, vui lòng thử lại!');
-            }
-        };
-
         // Format content (hiển thị lại nội dung với HTML)
         const formattedContent = computed(() => {
             return editorContent.value;
@@ -154,7 +146,6 @@ export default {
 
         return {
             editor,
-            saveContent,
             formattedContent,
             numRows,
             numColumns,
