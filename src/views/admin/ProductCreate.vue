@@ -18,11 +18,11 @@
             </div>
             <div class="mb-4">
                 <label for="price" class="block font-semibold">Giá</label>
-                <InputNumber v-model="product.price" :min="0" class="w-full" mode="decimal" showButtons />
+                <InputNumber v-model="product.price" :min="0" class="w-full" mode="decimal" showButtons  placeholder="Ví dụ: 100.000" />
             </div>
             <div class="mb-4">
                 <label for="salePrice" class="block font-semibold">Giá khuyến mãi</label>
-                <InputNumber v-model="product.salePrice" :min="0" class="w-full" mode="decimal" showButtons />
+                <InputNumber v-model="product.salePrice" :min="0" class="w-full" mode="decimal" showButtons placeholder="Ví dụ: 100.000" />
             </div>
             <div class="mb-4">
                 <label for="product-images" class="block font-semibold">Ảnh sản phẩm</label>
@@ -30,11 +30,11 @@
             </div>
             <div class="mb-4">
                 <label for="collectionId" class="block font-semibold">Bộ sưu tập</label>
-                <Dropdown v-model="product.collectionId" :options="collections" optionLabel="name" class="w-full" />
+                <Dropdown v-model="product.collectionId" :options="collections" optionLabel="name"  placeholder="Chọn bộ sưu tập" class="w-full" />
             </div>
             <div class="mb-4">
                 <label for="status" class="block font-semibold">Trạng thái</label>
-                <Dropdown v-model="product.status" :options="statusOptions" optionLabel="name" class="w-full" />
+                <Dropdown v-model="product.status" :options="statusOptions" optionLabel="name"  placeholder="Chọn trạng thái sản phẩm" class="w-full" />
             </div>
             <div class="mb-4">
                 <label for="tags" class="block font-semibold">Thẻ (Tags)</label>
@@ -56,19 +56,19 @@
             </div>
             <div class="mb-4">
                 <label for="soldAmount" class="block font-semibold">Số lượng đã bán</label>
-                <InputNumber v-model="product.soldAmount" :min="0" class="w-full" />
+                <InputNumber v-model="product.soldAmount" :min="0" class="w-full" placeholder="Ví dụ: 100" />
             </div>
             <div class="mb-4">
                 <label for="hits" class="block font-semibold">Số hơi</label>
-                <InputNumber v-model="product.hits" :min="0" class="w-full" />
+                <InputNumber v-model="product.hits" :min="0" class="w-full" placeholder="Ví dụ: 100" />
             </div>
             <div class="mb-4">
                 <label for="power" class="block font-semibold">Công suất</label>
-                <InputNumber v-model="product.power" :min="0" class="w-full" />
+                <InputNumber v-model="product.power" :min="0" class="w-full" placeholder="Ví dụ: 100" />
             </div>
             <div class="mb-4">
                 <label for="brand" class="block font-semibold">Thương hiệu</label>
-                <Dropdown v-model="product.brand" :options="brands" optionLabel="name" class="w-full" />
+                <Dropdown v-model="product.brand" :options="brands" optionLabel="name" class="w-full"  placeholder="Chọn thương hiệu của sản phẩm" />
             </div>
 
             <div class="mb-4">

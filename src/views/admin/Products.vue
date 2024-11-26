@@ -16,7 +16,6 @@
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                 :rowsPerPageOptions="[5, 10, 25]"
                 currentPageReportTemplate="Đang hiển thị {first} - {last} từ {totalRecords} sản phẩm"
-                @page="onPageChange"
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
@@ -275,5 +274,6 @@ function openNew() {
 function onUpload() {
     toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
 }
+
 const fileupload = ref();
 </script>
