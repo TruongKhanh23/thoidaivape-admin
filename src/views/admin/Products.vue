@@ -126,6 +126,7 @@ const onSearch = () => {
 
 // Hàm lấy danh sách sản phẩm theo phân trang
 const getPaginatedProducts = async () => {
+    loading.value = true;
     const q = query(collection(db, 'products'));
     const querySnapshot = await getDocs(q);
     products.value = querySnapshot.docs.map((doc) => {
@@ -133,6 +134,7 @@ const getPaginatedProducts = async () => {
     });
 
     totalRecords.value = products.value.length;
+    loading.value = false;
 };
 
 getPaginatedProducts();
