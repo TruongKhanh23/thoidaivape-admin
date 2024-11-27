@@ -26,6 +26,7 @@
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên sản phẩm..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
+                            <Button v-if="canCreateProduct" label="Tạo hàng loại" icon="pi pi-plus" @click="handleCreateDummyProducts" />
                             <Button v-if="canCreateProduct" label="Tạo mới" icon="pi pi-plus" @click="navigateToProductCreate" />
                             <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
                             <Button v-if="canDeleteProduct" label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
@@ -102,9 +103,10 @@ import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { formatDate } from '@/utils';
 import { useRouter } from 'vue-router';
-import { canCreateProduct, canReadProduct, canUpdateProduct, canDeleteProduct } from "@/composables/rights"
+import { canCreateProduct, canUpdateProduct, canDeleteProduct } from '@/composables/rights';
+import { createDummyProducts } from '@/composables/dummy/product';
 
-const router = useRouter()
+const router = useRouter();
 
 const loading = ref(false);
 const products = ref([]);
@@ -116,7 +118,6 @@ const filters = ref({ global: { value: '' } });
 const pageSize = ref(10);
 const currentPage = ref(0);
 const totalRecords = ref(0);
-
 
 // Hàm tìm kiếm
 const onSearch = () => {
@@ -177,7 +178,12 @@ function formatCurrency(value) {
     return '0 đ'; // Xử lý trường hợp giá trị không hợp lệ
 }
 
-function navigateToProductCreate(){
-    router.push("/admin/product-action/create")
+function navigateToProductCreate() {
+    router.push('/admin/product-action/create');
+}
+
+async function handleCreateDummyProducts() {
+    await createDummyProducts();
+    getPaginatedProducts();
 }
 </script>
