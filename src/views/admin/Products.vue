@@ -98,13 +98,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { ref, computed } from 'vue';
+import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { formatDate } from '@/utils';
 import { useRouter } from 'vue-router';
 import { canCreateProduct, canUpdateProduct, canDeleteProduct } from '@/composables/rights';
 import { createDummyProducts } from '@/composables/dummy/product';
+import { getAllProducts } from '@/composables/product';
 
 const router = useRouter();
 
@@ -117,7 +118,7 @@ const product = ref({});
 const filters = ref({ global: { value: '' } });
 const pageSize = ref(10);
 const currentPage = ref(0);
-const totalRecords = ref(0);
+const totalRecords = computed(() => products.value.length);
 
 // Hàm tìm kiếm
 const onSearch = () => {
@@ -126,13 +127,16 @@ const onSearch = () => {
 
 // Hàm lấy danh sách sản phẩm theo phân trang
 const getPaginatedProducts = async () => {
-    const q = query(collection(db, 'products'));
-    const querySnapshot = await getDocs(q);
-    products.value = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-    });
-
-    totalRecords.value = products.value.length;
+    loading.value = true;
+    try {
+        products.value = await getAllProducts('cache');
+        console.log('Fetched from cache:', products.value);
+    } catch (cacheError) {
+        console.warn('Cache fetch failed, falling back to server:', cacheError);
+        products.value = await getAllProducts('server');
+        console.log('Fetched from server:', products.value);
+    }
+    loading.value = false;
 };
 
 getPaginatedProducts();

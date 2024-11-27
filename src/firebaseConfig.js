@@ -1,7 +1,7 @@
 // firebaseConfig.js
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth'; // nếu cần auth
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 import urlHostToConfigsMap from './urlHostToConfigsMap';
 
 const currentDomain = window.location.hostname;
@@ -11,8 +11,21 @@ const firebaseConfig = urlHostToConfigsMap[currentDomain] || urlHostToConfigsMap
 
 // Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = initializeFirestore(app, {});
+
 const auth = getAuth(app); // nếu bạn sử dụng Firebase Auth
+
+enableIndexedDbPersistence(db)
+    .then(() => {
+        console.log('Persistence enabled successfully');
+    })
+    .catch((err) => {
+        if (err.code === 'failed-precondition') {
+            console.error('Multiple tabs open, persistence can only be enabled in one tab.');
+        } else if (err.code === 'unimplemented') {
+            console.error('The current browser does not support all features required for persistence.');
+        }
+    });
 
 // Xuất app và config
 export { app, auth, db, firebaseConfig };

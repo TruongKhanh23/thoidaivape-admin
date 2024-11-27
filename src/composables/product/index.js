@@ -1,4 +1,4 @@
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, query, collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 
 export const getProductById = async (id) => {
@@ -19,3 +19,16 @@ export const getProductById = async (id) => {
         throw error;
     }
 };
+
+export async function getAllProducts(source = 'default') {
+    const products = [];
+
+    const q = query(collection(db, 'products'));
+    const snapshot = await getDocs(q, { source });
+
+    snapshot.forEach((doc) => {
+        products.push({ id: doc.id, ...doc.data() });
+    });
+
+    return products;
+}
