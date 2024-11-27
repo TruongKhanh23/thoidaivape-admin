@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { getPaginatedUsers } from '@/service/firestoreService';
+import { getPaginatedUsers } from '@/composables/users';
 import { formatDate } from '@/utils';
 import { FilterMatchMode } from '@primevue/core/api';
 import { onMounted, ref } from 'vue';

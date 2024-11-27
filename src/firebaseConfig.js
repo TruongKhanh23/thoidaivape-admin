@@ -2,6 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth'; // nếu cần auth
 import { initializeFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+
 import urlHostToConfigsMap from './urlHostToConfigsMap';
 
 const currentDomain = window.location.hostname;
@@ -11,7 +12,9 @@ const firebaseConfig = urlHostToConfigsMap[currentDomain] || urlHostToConfigsMap
 
 // Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
-const db = initializeFirestore(app, {});
+const db = initializeFirestore(app, {
+    cacheSizeBytes: 10 * 1024 * 1024 // 10MB cache
+});
 
 const auth = getAuth(app); // nếu bạn sử dụng Firebase Auth
 
