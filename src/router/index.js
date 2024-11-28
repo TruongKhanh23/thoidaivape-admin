@@ -49,6 +49,11 @@ const routes = [
                 component: () => import('@/views/admin/ProductAction.vue')
             },
             {
+                path: '/admin/collections',
+                name: 'collections',
+                component: () => import('@/views/admin/Collections.vue')
+            },
+            {
                 path: '/admin/sample-rich-text',
                 name: 'sample-rich-text',
                 component: () => import('@/views/admin/SampleRichText.vue')
@@ -228,14 +233,13 @@ router.beforeEach(async (to, from, next) => {
 
     // Kiểm tra xác thực & valid paths
     const validPaths = extractPaths(routes);
-    if (!validPaths.includes(to.path) || validPaths.includes(to.path)){
+    if (!validPaths.includes(to.path) || validPaths.includes(to.path)) {
         if (!account && to.meta.requiresAuth) {
             return next('/admin/login');
         } else {
-            return next()
+            return next();
         }
     }
-
 
     // Kiểm tra quyền admin
     if (to.matched.some((record) => record.meta.requiredRights)) {
