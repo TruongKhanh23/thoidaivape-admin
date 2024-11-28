@@ -26,16 +26,17 @@
                             </InputIcon>
                             <InputText v-model="filters['global'].value" placeholder="Tìm kiếm..." @input="onFilterChange" />
                         </IconField>
-                        <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
+                        <div class="space-x-2">
+                            <Button v-if="canCreateCollection" label="Tạo mới" icon="pi pi-plus" @click="openNew" />
+                            <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
+                        </div>
                     </div>
                 </template>
 
                 <Column field="name" header="Tên bộ sưu tập" sortable style="min-width: 16rem"></Column>
                 <Column field="description" header="Mô tả chi tiết" sortable style="min-width: 16rem">
-                    <template #body="slotProps">
-                        <span class="line-clamp-1">{{ slotProps.data.description }}</span>
-                    </template></Column
-                >
+                    <template #body="slotProps"><span class="line-clamp-1" v-html="slotProps.data.description"></span></template
+                ></Column>
                 <Column field="updatedAt" header="Cập nhật lúc" sortable style="min-width: 16rem">
                     <template #body="slotProps">
                         {{ formatDate(slotProps.data.updatedAt) }}
@@ -44,7 +45,7 @@
                 <Column field="updatedBy" header="Cập nhật bởi" sortable></Column>
                 <Column :exportable="false" style="min-width: 12rem" header="Hành động">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCollectionDetails(slotProps.data)" />
+                        <Button v-if="canUpdateCollection" icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCollectionDetails(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -53,7 +54,7 @@
                 <div class="flex flex-col gap-6">
                     <div>
                         <label for="name" class="block font-bold mb-3">Tên bộ sưu tập</label>
-                        <InputText id="name" v-model.trim="collection.name" required="true" autofocus />
+                        <InputText id="name" v-model.trim="collection.name" required="true" autofocus :disabled="isDisabled" />
                     </div>
 
                     <div class="mb-4">
@@ -61,37 +62,45 @@
                         <RichTextEditor idPrefix="collection-description" @richTextUpdated="handleUpdateRichText" v-model="collection.description" :initialContent="collection.description" />
                     </div>
 
-                    <div class="grid grid-cols-12 gap-4">
-                        <div class="col-span-6">
-                            <label for="createdAt" class="block font-bold mb-3">Ngày tạo</label>
-                            <InputText id="createdAt" v-model.trim="collection.createdAt" disabled fluid />
+                    <div v-if="isDisabled">
+                        <div class="grid grid-cols-12 gap-4">
+                            <div class="col-span-6">
+                                <label for="createdAt" class="block font-bold mb-3">Ngày tạo</label>
+                                <InputText id="createdAt" :value="formatDate(collection.createdAt)" :disabled="isDisabled" fluid />
+                            </div>
+                            <div class="col-span-6">
+                                <label for="createdBy" class="block font-bold mb-3">Tạo bởi</label>
+                                <InputText id="createdBy" v-model.trim="collection.createdBy" :disabled="isDisabled" fluid />
+                            </div>
                         </div>
-                        <div class="col-span-6">
-                            <label for="createdBy" class="block font-bold mb-3">Tạo bởi</label>
-                            <InputText id="createdBy" v-model.trim="collection.createdBy" disabled fluid />
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-12 gap-4">
-                        <div class="col-span-6">
-                            <label for="updatedAt" class="block font-bold mb-3">Ngày cập nhật</label>
-                            <InputText id="updatedAt" v-model.trim="collection.updatedAt" disabled fluid />
-                        </div>
-                        <div class="col-span-6">
-                            <label for="updatedBy" class="block font-bold mb-3">Cập nhật bởi</label>
-                            <InputText id="updatedBy" v-model.trim="collection.updatedBy" disabled fluid />
+                        <div class="grid grid-cols-12 gap-4">
+                            <div class="col-span-6">
+                                <label for="updatedAt" class="block font-bold mb-3">Ngày cập nhật</label>
+                                <InputText id="updatedAt" :value="formatDate(collection.updatedAt)" :disabled="isDisabled" fluid />
+                            </div>
+                            <div class="col-span-6">
+                                <label for="updatedBy" class="block font-bold mb-3">Cập nhật bởi</label>
+                                <InputText id="updatedBy" v-model.trim="collection.updatedBy" :disabled="isDisabled" fluid />
+                            </div>
                         </div>
                     </div>
                 </div>
+                <template #footer>
+                    <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
+                    <Button label="Save" icon="pi pi-check" @click="handleSaveCollection" />
+                </template>
             </Dialog>
         </div>
     </div>
 </template>
 
 <script setup>
-import { getPaginatedCollections } from '@/composables/collection';
+import { getPaginatedCollections, saveCollection } from '@/composables/collection';
 import { formatDate } from '@/utils';
 import { FilterMatchMode } from '@primevue/core/api';
 import { onMounted, ref } from 'vue';
+import { canCreateCollection, canUpdateCollection } from '@/composables/rights';
+
 // Variables
 const dtCollections = ref();
 const collection = ref();
@@ -107,6 +116,7 @@ const pageSize = ref(10); // Set page size to 1 for testing pagination
 const totalRecords = ref(0);
 const lastVisible = ref(null); // Store last visible document for pagination
 const description = ref();
+const isDisabled = ref(false);
 
 // Functions
 async function fetchCollections() {
@@ -134,7 +144,10 @@ function onPageChange(event) {
 }
 
 function editCollectionDetails(value) {
-    collection.value = { ...value, createdAt: formatDate(value.createdAt.toDate()), updatedAt: formatDate(value.updatedAt.toDate()) };
+    console.log('value', value);
+
+    isDisabled.value = true;
+    collection.value = { ...value, createdAt: value.createdAt, updatedAt: value.updatedAt };
     collectionDialog.value = true;
 }
 
@@ -144,6 +157,21 @@ function exportCSV() {
 
 function handleUpdateRichText(content) {
     description.value = content;
+}
+
+function openNew() {
+    isDisabled.value = false;
+    collection.value = {};
+    collectionDialog.value = true;
+}
+
+function hideDialog() {
+    collectionDialog.value = false;
+}
+
+async function handleSaveCollection() {
+    await saveCollection(collection.value, description.value);
+    window.location.reload();
 }
 
 // Initial Load

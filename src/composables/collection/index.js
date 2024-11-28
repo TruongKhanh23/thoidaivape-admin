@@ -1,5 +1,7 @@
-import { collection, getDocs, limit, orderBy, query, startAfter, where } from 'firebase/firestore';
+import { collection, getDocs, limit, orderBy, query, startAfter, where, updateDoc, addDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { ref } from 'vue';
+import store from '@/store';
 
 let searchCache = {}; // Khởi tạo cache tìm kiếm
 
@@ -73,3 +75,26 @@ export async function getPaginatedCollections(lastVisible = null, maxCollections
         totalRecords: querySnapshot.size
     };
 }
+
+export const saveCollection = async (collectionData, description) => {
+    const currentDate = new Date();
+    const account = store.getters.getAccount;
+    console.log('collectionData', collectionData);
+    console.log('description', description);
+    const data = ref({
+        ...collectionData,
+        description: description ?? '',
+        updatedAt: currentDate,
+        updatedBy: account.email
+    });
+
+    if (collectionData.id) {
+        await updateDoc(doc(db, 'collections', collectionData.id), data.value);
+    } else {
+        await addDoc(collection(db, 'collections'), {
+            ...data.value,
+            createdAt: currentDate,
+            createdBy: account.email
+        });
+    }
+};
