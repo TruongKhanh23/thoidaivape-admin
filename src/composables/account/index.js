@@ -27,8 +27,10 @@ const bannerRoles = ['create_banner', 'read_banner', 'update_banner', 'delete_ba
 
 const newsRoles = ['create_news', 'read_news', 'update_news', 'delete_news'];
 
+const collectionRoles = ['create_collection', 'read_collection', 'update_collection'];
+
 // Gom tất cả roles lại
-const allRoles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles];
+const allRoles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles, ...collectionRoles];
 
 // Hàm viết hoa chữ cái đầu mỗi từ
 const capitalizeWords = (str) =>

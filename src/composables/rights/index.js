@@ -1,4 +1,4 @@
-import store from "@/store"
+import store from '@/store';
 // Hàm kiểm tra quyền
 export const checkAccountRights = (requiredRights) => {
     // Lấy thông tin tài khoản hiện tại từ store
@@ -33,4 +33,20 @@ export function canUpdateProduct() {
 
 export function canDeleteProduct() {
     return checkAccountRights('delete_product');
+}
+// Collection
+export function canCreateCollection() {
+    return checkAccountRights('create_collection');
+}
+
+export function canReadCollection() {
+    return checkAccountRights('read_collection');
+}
+
+export function canUpdateCollection() {
+    return checkAccountRights('update_collection');
+}
+
+export function canDeleteCollection() {
+    return checkAccountRights('delete_collection');
 }
