@@ -54,6 +54,11 @@ const routes = [
                 component: () => import('@/views/admin/Collections.vue')
             },
             {
+                path: '/admin/brands',
+                name: 'brands',
+                component: () => import('@/views/admin/Brands.vue')
+            },
+            {
                 path: '/admin/sample-rich-text',
                 name: 'sample-rich-text',
                 component: () => import('@/views/admin/SampleRichText.vue')

@@ -162,7 +162,8 @@ const model = ref([
         items: [
             { label: 'Users', icon: 'pi pi-fw pi-user', to: '/admin/users', requiredRights: 'read_user' },
             { label: 'Products', icon: 'pi pi-fw pi-file', to: '/admin/products', requiredRights: 'read_product' },
-            { label: 'Collections', icon: 'pi pi-fw pi-file', to: '/admin/collections', requiredRights: 'read_collection' }
+            { label: 'Collections', icon: 'pi pi-fw pi-file', to: '/admin/collections', requiredRights: 'read_collection' },
+            { label: 'Brands', icon: 'pi pi-fw pi-file', to: '/admin/brands', requiredRights: 'read_brand' }
         ]
     },
     {

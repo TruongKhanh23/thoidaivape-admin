@@ -50,3 +50,20 @@ export function canUpdateCollection() {
 export function canDeleteCollection() {
     return checkAccountRights('delete_collection');
 }
+
+// Brand
+export function canCreateBrand() {
+    return checkAccountRights('create_brand');
+}
+
+export function canReadBrand() {
+    return checkAccountRights('read_brand');
+}
+
+export function canUpdateBrand() {
+    return checkAccountRights('update_brand');
+}
+
+export function canDeleteBrand() {
+    return checkAccountRights('delete_brand');
+}

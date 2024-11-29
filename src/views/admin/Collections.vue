@@ -144,8 +144,6 @@ function onPageChange(event) {
 }
 
 function editCollectionDetails(value) {
-    console.log('value', value);
-
     isDisabled.value = true;
     collection.value = { ...value, createdAt: value.createdAt, updatedAt: value.updatedAt };
     collectionDialog.value = true;
