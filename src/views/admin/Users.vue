@@ -107,7 +107,12 @@ const lastVisible = ref(null); // Store last visible document for pagination
 // Functions
 const fetchUsers = async () => {
     loading.value = true;
-    users.value = await getPaginatedUsers();
+    try {
+        users.value = await getPaginatedUsers('cache');
+        console.log('Fetch user from cache');
+    } catch (error) {
+        users.value = await getPaginatedUsers('server');
+    }
     totalRecords.value = users.value.length;
     loading.value = false;
 };

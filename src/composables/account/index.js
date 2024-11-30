@@ -29,11 +29,24 @@ const roles = allRoles.map((role) => ({
 }));
 
 const getAllAccounts = async () => {
+    try {
+        await fetchAllAccounts('cache');
+    } catch (error) {
+        await fetchAllAccounts('server');
+    }
+};
+
+const fetchAllAccounts = async (source = 'default') => {
     const q = query(collection(db, 'accounts'));
-    const querySnapshot = await getDocs(q);
-    accounts.value = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-    });
+    try {
+        const querySnapshot = await getDocs(q, { source });
+        accounts.value = querySnapshot.docs.map((doc) => {
+            return { id: doc.id, ...doc.data() };
+        });
+    } catch (error) {
+        console.error('Error fetching accounts:', error);
+        throw error;
+    }
 };
 
 const searchCache = ref({}); // Khởi tạo cache tìm kiếm

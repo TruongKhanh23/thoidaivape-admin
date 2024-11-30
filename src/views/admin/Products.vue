@@ -100,6 +100,7 @@ import { formatDate } from '@/utils';
 import { useRouter } from 'vue-router';
 import { canCreateProduct, canUpdateProduct, canDeleteProduct } from '@/composables/rights';
 import { createDummyProducts } from '@/composables/dummy/product';
+import { getAllProducts } from '@/composables/product';
 
 const router = useRouter();
 
@@ -123,13 +124,11 @@ const onSearch = () => {
 // Hàm lấy danh sách sản phẩm theo phân trang
 const getPaginatedProducts = async () => {
     loading.value = true;
-    const productsRef = collection(db, 'products');
-    const q = query(productsRef);
-    const querySnapshot = await getDocs(q);
-    products.value = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-    });
-
+    try {
+        products.value = await getAllProducts('cache');
+    } catch (error) {
+        products.value = await getAllProducts('server');
+    }
     totalRecords.value = products.value.length;
     loading.value = false;
 };

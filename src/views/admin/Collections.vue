@@ -121,7 +121,11 @@ const isDisabled = ref(false);
 // Functions
 const fetchCollections = async () => {
     loading.value = true;
-    collections.value = await getPaginatedCollections();
+    try {
+        collections.value = await getPaginatedCollections('cache');
+    } catch (error) {
+        collections.value = await getPaginatedCollections('server');
+    }
     totalRecords.value = collections.value.length;
     loading.value = false;
 };

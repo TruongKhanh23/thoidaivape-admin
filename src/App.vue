@@ -15,4 +15,14 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style>
+/* Mặc định (chế độ sáng) */
+.p-overlay-mask {
+    background-color: rgba(128, 128, 128, 0) !important;
+}
+
+/* Chế độ tối */
+.app-dark .p-overlay-mask {
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+</style>

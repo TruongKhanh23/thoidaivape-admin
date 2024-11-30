@@ -1,4 +1,5 @@
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, query, getDocs, doc, getDoc } from 'firebase/firestore';
+
 import { db } from '@/firebaseConfig';
 
 export const getProductById = async (id) => {
@@ -19,3 +20,20 @@ export const getProductById = async (id) => {
         throw error;
     }
 };
+
+export async function getAllProducts(source = 'default') {
+    const products = [];
+
+    const productsRef = collection(db, 'products');
+    const q = query(productsRef);
+    try {
+        const querySnapshot = await getDocs(q, { source });
+        querySnapshot.docs.map((doc) => {
+            products.push({ id: doc.id, ...doc.data() });
+        });
+        return products;
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+}

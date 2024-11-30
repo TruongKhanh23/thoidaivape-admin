@@ -23,10 +23,10 @@ export const saveUser = async (userData) => {
     }
 };
 
-export const getPaginatedUsers = async () => {
+export const getPaginatedUsers = async (source = 'default') => {
     const users = ref([]);
     const q = query(collection(db, 'users'));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(q, { source });
     users.value = querySnapshot.docs.map((doc) => {
         return { id: doc.id, ...doc.data() };
     });

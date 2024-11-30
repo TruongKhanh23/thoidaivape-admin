@@ -153,7 +153,11 @@ const onSearch = () => {
 // Hàm lấy danh sách thương hiệu theo phân trang
 const fetchPaginatedBrands = async () => {
     loading.value = true;
-    brands.value = await getPaginatedBrands();
+    try {
+        brands.value = await getPaginatedBrands('cache');
+    } catch (error) {
+        brands.value = await getPaginatedBrands('server');
+    }
     totalRecords.value = brands.value.length;
     loading.value = false;
 };
