@@ -3,13 +3,16 @@ import { db } from '@/firebaseConfig';
 
 export const getProductById = async (id) => {
     try {
-        const accountDocRef = doc(db, 'products', id);
-        const accountDoc = await getDoc(accountDocRef);
+        const productDocRef = doc(db, 'products', id);
+        const productDetailsDocRef = doc(db, 'product-details', id);
+        const productDoc = await getDoc(productDocRef);
+        const productDetailsDoc = await getDoc(productDetailsDocRef);
 
-        if (accountDoc.exists()) {
+        if (productDoc.exists()) {
             return {
                 id,
-                ...accountDoc.data()
+                ...productDoc.data(),
+                ...productDetailsDoc.data()
             };
         } else {
             throw new Error('Product not found');

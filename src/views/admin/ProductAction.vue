@@ -74,7 +74,7 @@
 import ImageUpload from '@/components/Input/ImageUpload.vue';
 import RichTextEditor from '@/components/Input/RichTextEditor.vue';
 import { computed, onMounted, ref } from 'vue';
-import { collection, updateDoc, addDoc, doc } from 'firebase/firestore';
+import { collection, updateDoc, addDoc, doc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { getProductById } from '@/composables/product';
 import { useRoute, useRouter } from 'vue-router';
@@ -147,22 +147,35 @@ function handleUpdateTags(content) {
 
 const saveProduct = async () => {
     const currentDate = new Date();
+    const { id, description, images, thumbnail, ...rest } = product.value; // Tách các trường riêng biệt
 
-    const data = ref({
-        ...product.value,
+    const commonData = {
+        ...rest,
         updatedAt: currentDate,
         updatedBy: account.value.email
-    });
+    };
 
-    if (product.value.id) {
-        await updateDoc(doc(db, 'products', product.value.id), data.value);
+    const productDetails = { description, images, thumbnail };
+
+    if (id) {
+        // Cập nhật sản phẩm đã tồn tại song song
+        const updateProductDetails = updateDoc(doc(db, 'product-details', id), productDetails);
+        const updateProduct = updateDoc(doc(db, 'products', id), commonData);
+
+        await Promise.all([updateProductDetails, updateProduct]); // Chạy song song
     } else {
-        await addDoc(collection(db, 'products'), {
-            ...data.value,
+        // Tạo sản phẩm mới song song
+        const addProduct = addDoc(collection(db, 'products'), {
+            ...commonData,
             createdAt: currentDate,
             createdBy: account.value.email
         });
+
+        const setProductDetails = setDoc(doc(db, 'product-details', id), productDetails);
+
+        await Promise.all([addProduct, setProductDetails]); // Chạy song song
     }
+
     router.push('/admin/products');
 };
 

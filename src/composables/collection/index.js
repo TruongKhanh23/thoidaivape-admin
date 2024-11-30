@@ -79,8 +79,6 @@ export async function getPaginatedCollections(lastVisible = null, maxCollections
 export const saveCollection = async (collectionData, description) => {
     const currentDate = new Date();
     const account = store.getters.getAccount;
-    console.log('collectionData', collectionData);
-    console.log('description', description);
     const data = ref({
         ...collectionData,
         description: description ?? '',
