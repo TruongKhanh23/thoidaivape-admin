@@ -156,22 +156,12 @@ export const createDummyProducts = async () => {
             // Thêm document vào collection 'products'
             const productRef = await addDoc(collection(db, 'products'), productData);
 
-            // Tách dữ liệu cho collection 'product-details'
-            const productDetails = {
-                description: product.description,
-                images: product.images,
-                collectionId: product.collection.id
+            const productsThumbnail = {
+                ...productData,
+                thumbnail: product.thumbnail
             };
 
-            await Promise.all([
-                setDoc(doc(db, 'product-thumbnail', productRef.id), {
-                    thumbnail: product.thumbnail,
-                    collectionId: product.collection.id
-                }),
-                setDoc(doc(db, 'product-details', productRef.id), {
-                    ...productDetails
-                })
-            ]);
+            await Promise.all([setDoc(doc(db, 'products-thumbnail', productRef.id), productsThumbnail), setDoc(doc(db, 'product-details', productRef.id), product)]);
         }
     } catch (error) {
         console.error('Error while adding products:', error);

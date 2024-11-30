@@ -103,6 +103,7 @@ import { createDummyProducts } from '@/composables/dummy/product';
 
 const router = useRouter();
 
+const dtProducts = ref();
 const loading = ref(false);
 const products = ref([]);
 const selectedProducts = ref([]);
@@ -137,7 +138,7 @@ getPaginatedProducts();
 
 // Hàm xóa sản phẩm
 const deleteProduct = async (id) => {
-    await Promise.all([deleteDoc(doc(db, 'products', id)), deleteDoc(doc(db, 'product-details', id)), deleteDoc(doc(db, 'product-thumbnail', id))]);
+    await Promise.all([deleteDoc(doc(db, 'products', id)), deleteDoc(doc(db, 'product-details', id)), deleteDoc(doc(db, 'products-thumbnail', id))]);
     deleteProductDialog.value = false;
     getPaginatedProducts();
 };
@@ -148,7 +149,7 @@ const deleteSelectedProducts = async () => {
     loading.value = true;
     for (const selected of selectedProducts.value) {
         const id = selected.id;
-        await Promise.all([deleteDoc(doc(db, 'products', id)), deleteDoc(doc(db, 'product-details', id)), deleteDoc(doc(db, 'product-thumbnail', id))]);
+        await Promise.all([deleteDoc(doc(db, 'products', id)), deleteDoc(doc(db, 'product-details', id)), deleteDoc(doc(db, 'products-thumbnail', id))]);
     }
     getPaginatedProducts();
     loading.value = false;
@@ -189,5 +190,9 @@ async function handleCreateDummyProducts() {
     await createDummyProducts();
     getPaginatedProducts();
     loading.value = false;
+}
+
+function exportCSV() {
+    dtProducts.value.exportCSV();
 }
 </script>
