@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { getPaginatedUsers } from '@/service/firestoreService';
+import { getPaginatedUsers } from '@/composables/users';
 import { formatDate } from '@/utils';
 import { FilterMatchMode } from '@primevue/core/api';
 import { onMounted, ref } from 'vue';
@@ -105,14 +105,12 @@ const totalRecords = ref(0);
 const lastVisible = ref(null); // Store last visible document for pagination
 
 // Functions
-async function fetchUsers() {
+const fetchUsers = async () => {
     loading.value = true;
-    const { users: data, lastVisible: newLastVisible, totalRecords: total } = await getPaginatedUsers(lastVisible.value, 50, filters.value.global.value);
-    users.value = data;
-    lastVisible.value = newLastVisible; // Update lastVisible for next page
-    totalRecords.value = total;
+    users.value = await getPaginatedUsers();
+    totalRecords.value = users.value.length;
     loading.value = false;
-}
+};
 
 // Hàm thay đổi filter và gọi lại fetchUsers
 function onFilterChange() {
