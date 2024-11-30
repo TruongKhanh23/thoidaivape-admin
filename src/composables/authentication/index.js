@@ -22,15 +22,12 @@ export const handleAuthenticationSuccess = async (account, router) => {
  * @returns {Promise<Object>} - Thông tin người dùng.
  */
 export async function createAccount(account) {
-    console.log('account', account);
-
     try {
         // Kiểm tra nếu account đã tồn tại trong Firestore
         const accountDocRef = doc(db, 'accounts', account.uid);
         const accountDoc = await getDoc(accountDocRef);
 
         if (accountDoc.exists()) {
-            console.log('Account already exists:', account.uid);
             return accountDoc.data();
         }
 
@@ -49,7 +46,6 @@ export async function createAccount(account) {
         // Lưu vào Firestore
         await setDoc(accountDocRef, accountData);
 
-        console.log('Account created successfully:', accountData);
         return accountData;
     } catch (error) {
         console.error('Error creating account:', error.message);
@@ -83,8 +79,6 @@ export const updateAccount = async (account) => {
 
         // Lưu lại dữ liệu đã cập nhật vào Vuex store
         store.dispatch('setAccount', updatedAccount);
-
-        console.log('Account updated successfully!');
     } catch (error) {
         console.error('Lỗi:', error);
         throw error;
@@ -102,7 +96,8 @@ export const getAccountById = async (accountId) => {
         const accountDoc = await getDoc(accountDocRef);
 
         if (accountDoc.exists()) {
-            console.log('Account data:', accountDoc.data());
+            store.dispatch('setAccount', accountDoc.data());
+
             return accountDoc.data();
         } else {
             throw new Error('Account not found');
@@ -111,4 +106,19 @@ export const getAccountById = async (accountId) => {
         console.error('Error getting account:', error.message);
         throw error;
     }
+};
+
+// Hàm kiểm tra quyền
+export const checkAccountRights = (requiredRights) => {
+    // Lấy thông tin tài khoản hiện tại từ store
+    const account = store.getters.getAccount;
+
+    // Nếu không có tài khoản hoặc không có quyền, trả về false
+    if (!account?.rights) return false;
+
+    // Lấy danh sách quyền của tài khoản
+    const accountRights = account.rights.map((item) => item.code);
+
+    // Kiểm tra nếu quyền yêu cầu nằm trong danh sách quyền của tài khoản
+    return accountRights.includes(requiredRights) || accountRights.includes('admin');
 };

@@ -111,15 +111,15 @@ import {
     saveAccount,
     deleteAccount,
     loading,
-    getPaginatedAccounts
+    getAllAccounts
 } from '@/composables/account';
 import { onMounted, onBeforeUnmount } from 'vue';
 
-onMounted(() => {
+onMounted(async () => {
     accounts.value = [];
     lastVisible.value = null;
     totalRecords.value = 0;
-    getPaginatedAccounts();
+    await getAllAccounts();
 });
 
 onBeforeUnmount(() => {
@@ -129,7 +129,7 @@ onBeforeUnmount(() => {
 const dtAccounts = ref();
 const deleteSelectedAccountsDialog = ref(false);
 
-getPaginatedAccounts();
+getAllAccounts();
 
 const editAccount = (selectedAccount) => {
     accountDialog.value = true;

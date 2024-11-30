@@ -1,4 +1,6 @@
 export const state = {
-  account: {},
-  isLoggedIn: false
-}
+    account: {},
+    brands: [],
+    collections: [],
+    isLoggedIn: false
+};
