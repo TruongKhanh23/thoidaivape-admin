@@ -5,7 +5,6 @@
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <img src="/img/original_logo.png" class="w-16 h-16" alt="logo" />
                 <span class="hidden sm:flex font-semibold">THỜI ĐẠI VAPE</span>
             </router-link>
         </div>

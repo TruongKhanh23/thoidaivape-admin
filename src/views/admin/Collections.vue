@@ -45,7 +45,7 @@
                 <Column field="updatedBy" header="Cập nhật bởi" sortable></Column>
                 <Column :exportable="false" style="min-width: 12rem" header="Hành động">
                     <template #body="slotProps">
-                        <Button v-if="canUpdateCollection" icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCollectionDetails(slotProps.data)" />
+                        <Button v-if="canUpdateCollection" icon="pi pi-pencil" class="mr-2" @click="editCollectionDetails(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
