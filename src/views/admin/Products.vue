@@ -93,16 +93,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { computed, ref } from 'vue';
+import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { formatDate } from '@/utils';
 import { useRouter } from 'vue-router';
-import { canCreateProduct, canUpdateProduct, canDeleteProduct } from '@/composables/rights';
 import { createDummyProducts } from '@/composables/dummy/product';
 import { getAllProducts } from '@/composables/product';
+import { checkAccountRights } from '@/composables/rights';
 
 const router = useRouter();
+
+const canCreateProduct = computed(() => checkAccountRights('create_product'));
+const canUpdateProduct = computed(() => checkAccountRights('update_product'));
+const canDeleteProduct = computed(() => checkAccountRights('delete_product'));
 
 const dtProducts = ref();
 const loading = ref(false);

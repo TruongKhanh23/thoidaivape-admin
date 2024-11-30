@@ -41,6 +41,9 @@ const routes = [
             {
                 path: '/admin/products',
                 name: 'products',
+                meta: {
+                    requiredRights: 'read_product'
+                },
                 component: () => import('@/views/admin/Products.vue')
             },
             {
@@ -51,11 +54,17 @@ const routes = [
             {
                 path: '/admin/collections',
                 name: 'collections',
+                meta: {
+                    requiredRights: 'read_collection'
+                },
                 component: () => import('@/views/admin/Collections.vue')
             },
             {
                 path: '/admin/brands',
                 name: 'brands',
+                meta: {
+                    requiredRights: 'read_brand'
+                },
                 component: () => import('@/views/admin/Brands.vue')
             },
             {

@@ -96,6 +96,8 @@ export const getAccountById = async (accountId) => {
         const accountDoc = await getDoc(accountDocRef);
 
         if (accountDoc.exists()) {
+            store.dispatch('setAccount', accountDoc.data());
+
             return accountDoc.data();
         } else {
             throw new Error('Account not found');

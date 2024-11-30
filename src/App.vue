@@ -3,15 +3,19 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
 import { getPaginatedBrands } from './composables/brand';
 import { getPaginatedCollections } from './composables/collection';
+import { useStore } from 'vuex';
+import { getAccountById } from './composables/authentication';
 
-const brands = ref([]);
-const collections = ref([]);
+const store = useStore();
+const account = computed(() => store.getters.getAccount ?? {});
+
 onMounted(async () => {
-    brands.value = await getPaginatedBrands();
-    collections.value = await getPaginatedCollections();
+    await getAccountById(account.value.uid);
+    await getPaginatedBrands();
+    await getPaginatedCollections();
 });
 </script>
 

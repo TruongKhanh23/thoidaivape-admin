@@ -43,7 +43,7 @@
                     </template>
                 </Column>
                 <Column field="updatedBy" header="Cập nhật bởi" sortable></Column>
-                <Column :exportable="false" style="min-width: 12rem" header="Hành động">
+                <Column v-if="canUpdateCollection" :exportable="false" style="min-width: 12rem" header="Hành động">
                     <template #body="slotProps">
                         <Button v-if="canUpdateCollection" icon="pi pi-pencil" class="mr-2" @click="editCollectionDetails(slotProps.data)" />
                     </template>
@@ -98,8 +98,11 @@
 import { getPaginatedCollections, saveCollection } from '@/composables/collection';
 import { formatDate } from '@/utils';
 import { FilterMatchMode } from '@primevue/core/api';
-import { onMounted, ref } from 'vue';
-import { canCreateCollection, canUpdateCollection } from '@/composables/rights';
+import { onMounted, ref, computed } from 'vue';
+import { checkAccountRights } from '@/composables/authentication';
+
+const canCreateCollection = computed(() => checkAccountRights('create_collection'));
+const canUpdateCollection = computed(() => checkAccountRights('update_collection'));
 
 // Variables
 const dtCollections = ref();
