@@ -155,14 +155,18 @@ const saveProduct = async () => {
         updatedBy: account.value.email
     };
 
-    const productDetails = { description, images, thumbnail };
+    const collectionId = commonData.collection.id;
+
+    const productDetails = { description, images, collectionId };
+    const productThumbnail = { thumbnail, collectionId };
 
     if (id) {
         // Cập nhật sản phẩm đã tồn tại song song
+        const updateProductThumbnail = updateDoc(doc(db, 'product-thumbnail', id), thumbnail);
         const updateProductDetails = updateDoc(doc(db, 'product-details', id), productDetails);
         const updateProduct = updateDoc(doc(db, 'products', id), commonData);
 
-        await Promise.all([updateProductDetails, updateProduct]); // Chạy song song
+        await Promise.all([updateProductThumbnail, updateProductDetails, updateProduct]); // Chạy song song
     } else {
         const productRef = await addDoc(collection(db, 'products'), {
             ...commonData,
@@ -170,7 +174,7 @@ const saveProduct = async () => {
             createdBy: account.value.email
         });
 
-        await setDoc(doc(db, 'product-details', productRef.id), productDetails);
+        await Promise.all([setDoc(doc(db, 'product-thumbnail', productRef.id), productThumbnail), setDoc(doc(db, 'product-details', productRef.id), productDetails)]);
     }
 
     router.push('/admin/products');

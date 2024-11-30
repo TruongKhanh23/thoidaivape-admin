@@ -125,7 +125,7 @@ function generateShortDescription() {
 export const createDummyProducts = async () => {
     const now = new Date();
     try {
-        for (let i = 0; i < 28; i++) {
+        for (let i = 0; i < 10; i++) {
             const product = {
                 createdBy: 'thoidaivape.cafe@gmail.com',
                 updatedBy: 'thoidaivape.cafe@gmail.com',
@@ -160,13 +160,18 @@ export const createDummyProducts = async () => {
             const productDetails = {
                 description: product.description,
                 images: product.images,
-                thumbnail: product.thumbnail
+                collectionId: product.collection.id
             };
 
-            // Thêm document vào collection 'product-details' với ID của sản phẩm
-            await setDoc(doc(db, 'product-details', productRef.id), {
-                ...productDetails
-            });
+            await Promise.all([
+                setDoc(doc(db, 'product-thumbnail', productRef.id), {
+                    thumbnail: product.thumbnail,
+                    collectionId: product.collection.id
+                }),
+                setDoc(doc(db, 'product-details', productRef.id), {
+                    ...productDetails
+                })
+            ]);
         }
     } catch (error) {
         console.error('Error while adding products:', error);
