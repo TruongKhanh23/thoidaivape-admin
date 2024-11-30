@@ -116,18 +116,7 @@ const statusOptions = [
     { id: 'in_stock', name: 'Còn hàng' },
     { id: 'out_of_stock', name: 'Hết hàng' }
 ];
-const brands = [
-    { id: 'oxva', name: 'Oxva' },
-    { id: 'aspire', name: 'Aspire' },
-    { id: 'fitpod', name: 'Fitpod' },
-    { id: 'lost-vape', name: 'Lost Vape' },
-    { id: 'voopoo', name: 'Voopoo' },
-    { id: 'geek-vape', name: 'Geek Vape' },
-    { id: 'dovpo', name: 'Dovpo' },
-    { id: 'sp2s', name: 'SP2S' },
-    { id: 'romio-astro', name: 'Romio Astro' },
-    { id: 'dotmod', name: 'dotMod' }
-];
+const brands = computed(() => store.getters.getBrands);
 
 function handleUploadThumbnail(binary) {
     product.value.thumbnail = binary;
