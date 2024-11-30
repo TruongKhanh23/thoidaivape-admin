@@ -13,7 +13,7 @@
                 :filters="filters"
                 :first="currentPage * pageSize"
                 :totalRecords="Number(totalRecords) || 0"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
                 currentPageReportTemplate="Đang hiển thị {first} - {last} từ {totalRecords} sản phẩm"
             >
@@ -103,6 +103,7 @@ import { createDummyProducts } from '@/composables/dummy/product';
 
 const router = useRouter();
 
+const dtProducts = ref();
 const loading = ref(false);
 const products = ref([]);
 const selectedProducts = ref([]);
@@ -137,17 +138,21 @@ getPaginatedProducts();
 
 // Hàm xóa sản phẩm
 const deleteProduct = async (id) => {
-    await deleteDoc(doc(db, 'products', id));
+    await Promise.all([deleteDoc(doc(db, 'products', id)), deleteDoc(doc(db, 'product-details', id)), deleteDoc(doc(db, 'products-thumbnail', id))]);
     deleteProductDialog.value = false;
     getPaginatedProducts();
 };
 
 // Hàm xóa các sản phẩm đã chọn
 const deleteSelectedProducts = async () => {
-    for (const selected of selectedProducts.value) {
-        await deleteProduct(selected.id);
-    }
     deleteSelectedProductsDialog.value = false;
+    loading.value = true;
+    for (const selected of selectedProducts.value) {
+        const id = selected.id;
+        await Promise.all([deleteDoc(doc(db, 'products', id)), deleteDoc(doc(db, 'product-details', id)), deleteDoc(doc(db, 'products-thumbnail', id))]);
+    }
+    getPaginatedProducts();
+    loading.value = false;
 };
 
 // Hàm chỉnh sửa sản phẩm
@@ -181,7 +186,13 @@ function navigateToProductCreate() {
 }
 
 async function handleCreateDummyProducts() {
+    loading.value = true;
     await createDummyProducts();
     getPaginatedProducts();
+    loading.value = false;
+}
+
+function exportCSV() {
+    dtProducts.value.exportCSV();
 }
 </script>

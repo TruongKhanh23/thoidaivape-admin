@@ -147,7 +147,7 @@ function handleUpdateTags(content) {
 
 const saveProduct = async () => {
     const currentDate = new Date();
-    const { id, description, images, thumbnail, ...rest } = product.value; // Tách các trường riêng biệt
+    const { id, thumbnail, ...rest } = product.value; // Tách các trường riêng biệt
 
     const commonData = {
         ...rest,
@@ -155,14 +155,15 @@ const saveProduct = async () => {
         updatedBy: account.value.email
     };
 
-    const productDetails = { description, images, thumbnail };
+    const productsThumbnail = { ...commonData, thumbnail };
 
     if (id) {
         // Cập nhật sản phẩm đã tồn tại song song
-        const updateProductDetails = updateDoc(doc(db, 'product-details', id), productDetails);
-        const updateProduct = updateDoc(doc(db, 'products', id), commonData);
+        const updateProductThumbnail = updateDoc(doc(db, 'products', id), commonData);
+        const updateProduct = updateDoc(doc(db, 'products-thumbnail', id), productsThumbnail);
+        const updateProductDetails = updateDoc(doc(db, 'product-details', id), product.value);
 
-        await Promise.all([updateProductDetails, updateProduct]); // Chạy song song
+        await Promise.all([updateProductThumbnail, updateProductDetails, updateProduct]); // Chạy song song
     } else {
         const productRef = await addDoc(collection(db, 'products'), {
             ...commonData,
@@ -170,7 +171,7 @@ const saveProduct = async () => {
             createdBy: account.value.email
         });
 
-        await setDoc(doc(db, 'product-details', productRef.id), productDetails);
+        await Promise.all([setDoc(doc(db, 'products-thumbnail', productRef.id), productsThumbnail), setDoc(doc(db, 'product-details', productRef.id), product.value)]);
     }
 
     router.push('/admin/products');
