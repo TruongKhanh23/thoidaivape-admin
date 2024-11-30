@@ -119,14 +119,12 @@ const description = ref();
 const isDisabled = ref(false);
 
 // Functions
-async function fetchCollections() {
+const fetchCollections = async () => {
     loading.value = true;
-    const { collections: data, lastVisible: newLastVisible, totalRecords: total } = await getPaginatedCollections(lastVisible.value, 50, filters.value.global.value);
-    collections.value = data;
-    lastVisible.value = newLastVisible; // Update lastVisible for next page
-    totalRecords.value = total;
+    collections.value = await getPaginatedCollections();
+    totalRecords.value = collections.value.length;
     loading.value = false;
-}
+};
 
 // Hàm thay đổi filter và gọi lại fetchCollections
 function onFilterChange() {
@@ -168,8 +166,11 @@ function hideDialog() {
 }
 
 async function handleSaveCollection() {
+    hideDialog();
+    loading.value = true;
     await saveCollection(collection.value, description.value);
-    window.location.reload();
+    await fetchCollections();
+    loading.value = false;
 }
 
 // Initial Load
