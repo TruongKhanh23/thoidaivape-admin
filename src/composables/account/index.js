@@ -2,7 +2,6 @@ import { ref } from 'vue';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, addDoc, startAfter, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { allRoles } from '@/composables/rights';
-import store from '@/store';
 
 const loading = ref(false);
 const accounts = ref([]);
