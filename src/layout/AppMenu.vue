@@ -14,7 +14,7 @@ import AppMenuItem from './AppMenuItem.vue';
 import store from '@/store';
 
 const account = computed(() => store.getters.getAccount);
-const rights = computed(() => account.value?.rights.map(item => item.code) || []);
+const rights = computed(() => account.value?.rights?.map((item) => item.code) || []);
 
 const others = ref({
     label: 'Sample',
@@ -159,11 +159,12 @@ const model = ref([
     },
     {
         label: 'Manage',
-        items: [{ label: 'Users', icon: 'pi pi-fw pi-user', to: '/admin/users', requiredRights: 'read_user' }]
-    },
-    {
-        label: 'Admin',
-        items: [{ label: 'Accounts', icon: 'pi pi-fw pi-briefcase', to: '/admin/accounts', requiredRights: 'admin' }]
+        items: [
+            { label: 'Users', icon: 'pi pi-fw pi-user', to: '/admin/users', requiredRights: 'read_user' },
+            { label: 'Products', icon: 'pi pi-fw pi-file', to: '/admin/products', requiredRights: 'read_product' },
+            { label: 'Collections', icon: 'pi pi-fw pi-file', to: '/admin/collections', requiredRights: 'read_collection' },
+            { label: 'Brands', icon: 'pi pi-fw pi-file', to: '/admin/brands', requiredRights: 'read_brand' }
+        ]
     }
     //others.value,
     //uiComponents.value,
@@ -171,6 +172,13 @@ const model = ref([
     //subMenu.value,
     //getStarted.value
 ]);
+
+if (rights.value[0] == 'admin') {
+    model.value.push({
+        label: 'Admin',
+        items: [{ label: 'Accounts', icon: 'pi pi-fw pi-briefcase', to: '/admin/accounts', requiredRights: 'admin' }]
+    });
+}
 
 // Hàm lọc menu dựa trên quyền
 const filterMenu = (items) => {

@@ -58,7 +58,6 @@ onMounted(async () => {
         const accountData = await getAccountById(account.value.uid);
         editableAccount.displayName = accountData.displayName || '';
         editableAccount.email = accountData.email || '';
-        store.dispatch('setAccount', accountData);
     } catch (error) {
         console.error('Error loading account data:', error.message);
     }

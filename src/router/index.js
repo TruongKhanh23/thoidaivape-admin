@@ -39,6 +39,45 @@ const routes = [
                 component: () => import('@/views/admin/Profile.vue')
             },
             {
+                path: '/admin/products',
+                name: 'products',
+                meta: {
+                    requiredRights: 'read_product'
+                },
+                component: () => import('@/views/admin/Products.vue')
+            },
+            {
+                path: '/admin/product-action/:action/:id?',
+                name: 'product-action',
+                component: () => import('@/views/admin/ProductAction.vue')
+            },
+            {
+                path: '/admin/collections',
+                name: 'collections',
+                meta: {
+                    requiredRights: 'read_collection'
+                },
+                component: () => import('@/views/admin/Collections.vue')
+            },
+            {
+                path: '/admin/brands',
+                name: 'brands',
+                meta: {
+                    requiredRights: 'read_brand'
+                },
+                component: () => import('@/views/admin/Brands.vue')
+            },
+            {
+                path: '/admin/sample-rich-text',
+                name: 'sample-rich-text',
+                component: () => import('@/views/admin/SampleRichText.vue')
+            },
+            {
+                path: '/admin/sample-upload-file',
+                name: 'sample-upload-file',
+                component: () => import('@/views/sample/SampleUploadFile.vue')
+            },
+            {
                 path: '/uikit/formlayout',
                 name: 'formlayout',
                 component: () => import('@/views/uikit/FormLayout.vue')
@@ -201,25 +240,26 @@ router.beforeEach(async (to, from, next) => {
         };
     }
 
-    // Kiểm tra nếu đường dẫn không nằm trong danh sách hợp lệ
-    const validPaths = extractPaths(routes);
-    if (!validPaths.includes(to.path) && to.path !== '/admin/login') {
-        return next('/admin/login');
+    // Ngăn redirect vô hạn đến /admin/login
+    if (to.path === '/admin/login' && !account) {
+        return next(); // Không redirect nếu đã ở trang login
     }
 
-    // Kiểm tra xác thực
-    if (to.matched.some((record) => record.meta.requiresAuth)) {
-        if (!account) {
+    // Kiểm tra xác thực & valid paths
+    const validPaths = extractPaths(routes);
+    if (!validPaths.includes(to.path) || validPaths.includes(to.path)) {
+        if (!account && to.meta.requiresAuth) {
             return next('/admin/login');
+        } else {
+            return next();
         }
     }
 
     // Kiểm tra quyền admin
     if (to.matched.some((record) => record.meta.requiredRights)) {
-        const rights = !account?.rights?.map(item => item.code) || [];
-        if (rights?.includes(to.meta.requiredRights) || rights?.map(item => item.code).includes('admin')) {
-            // Nếu không đủ quyền, điều hướng tới trang từ chối truy cập
-            next('/auth/access');
+        const rights = account?.rights?.map((item) => item.code) || [];
+        if (!rights.includes(to.meta.requiredRights) && !rights.includes('admin')) {
+            return next('/auth/access');
         }
     }
 
@@ -228,6 +268,7 @@ router.beforeEach(async (to, from, next) => {
         return next('/');
     }
 
+    // Nếu tất cả điều kiện đều đúng, cho phép truy cập
     next();
 });
 

@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, addDoc, startAfter, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
+import { allRoles } from '@/composables/rights';
 
 const loading = ref(false);
 const accounts = ref([]);
@@ -13,22 +14,6 @@ const deleteAccountDialog = ref(false);
 const account = ref({});
 const pageSize = ref(10);
 const currentPage = ref(0);
-const userRoles = ['read_user'];
-
-const productRoles = ['create_product', 'read_product', 'update_product', 'delete_product'];
-
-const orderRoles = ['read_order', 'update_order', 'delete_order'];
-
-const discountCodeRoles = ['create_discountCode', 'read_discountCode', 'update_discountCode', 'delete_discountCode'];
-
-const contactRoles = ['read_contact'];
-
-const bannerRoles = ['create_banner', 'read_banner', 'update_banner', 'delete_banner'];
-
-const newsRoles = ['create_news', 'read_news', 'update_news', 'delete_news'];
-
-// Gom tất cả roles lại
-const allRoles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles];
 
 // Hàm viết hoa chữ cái đầu mỗi từ
 const capitalizeWords = (str) =>
@@ -44,16 +29,24 @@ const roles = allRoles.map((role) => ({
 }));
 
 const getAllAccounts = async () => {
-    loading.value = true;
+    try {
+        await fetchAllAccounts('cache');
+    } catch (error) {
+        await fetchAllAccounts('server');
+    }
+};
 
-    // Truy vấn để lấy tất cả các tài khoản (Firestore không hỗ trợ lọc trực tiếp trong trường hợp này).
+const fetchAllAccounts = async (source = 'default') => {
     const q = query(collection(db, 'accounts'));
-    const querySnapshot = await getDocs(q);
-
-    // Lọc các tài khoản không có quyền 'admin' dựa trên trường code trong rights.
-    accounts.value = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })).filter((account) => !account.rights.some((right) => right.code === 'admin'));
-
-    loading.value = false;
+    try {
+        const querySnapshot = await getDocs(q, { source });
+        accounts.value = querySnapshot.docs.map((doc) => {
+            return { id: doc.id, ...doc.data() };
+        });
+    } catch (error) {
+        console.error('Error fetching accounts:', error);
+        throw error;
+    }
 };
 
 const searchCache = ref({}); // Khởi tạo cache tìm kiếm
@@ -131,7 +124,7 @@ const saveAccount = async () => {
     // Reset pagination và fetch lại danh sách
     lastVisible.value = null;
     currentPage.value = 0;
-    await getPaginatedAccounts();
+    await getAllAccounts();
     loading.value = false;
 };
 
@@ -160,13 +153,13 @@ function onPageChange(event) {
     pageSize.value = event.rows;
     // Đảm bảo lastVisible được reset khi thay đổi trang
     lastVisible.value = null;
-    getPaginatedAccounts(); // Gọi lại fetchUsers khi thay đổi trang
+    getAllAccounts(); // Gọi lại fetchUsers khi thay đổi trang
 }
 
 const onSearch = () => {
     lastVisible.value = null; // Reset phân trang
     currentPage.value = 0; // Reset trang hiện tại
-    getPaginatedAccounts(); // Gọi lại tìm kiếm
+    getAllAccounts(); // Gọi lại tìm kiếm
 };
 
 export {
