@@ -1,4 +1,4 @@
-import { collection, updateDoc, addDoc, doc } from 'firebase/firestore';
+import { collection, updateDoc, addDoc, doc, query, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { ref } from 'vue';
 import store from '@/store';
@@ -21,4 +21,20 @@ export const saveBrand = async (brandData) => {
             createdBy: account.email
         });
     }
+};
+
+export const getPaginatedBrands = async () => {
+    const brands = ref([]);
+    const q = query(collection(db, 'brands'));
+    const querySnapshot = await getDocs(q);
+    brands.value = querySnapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data() };
+    });
+    store.dispatch(
+        'setBrands',
+        brands.value.map((brand) => {
+            return { id: brand.id, name: brand.name };
+        })
+    );
+    return brands.value;
 };

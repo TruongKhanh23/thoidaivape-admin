@@ -123,12 +123,12 @@
 
 <script setup>
 import { ref } from 'vue';
-import { collection, query, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { formatDate } from '@/utils';
 import { canCreateBrand, canUpdateBrand, canDeleteBrand } from '@/composables/rights';
 import { createDummyBrands } from '@/composables/dummy/brand';
-import { saveBrand } from '@/composables/brand';
+import { saveBrand, getPaginatedBrands } from '@/composables/brand';
 
 const dtBrands = ref();
 const loading = ref(false);
@@ -147,29 +147,24 @@ const isDisabled = ref(false);
 
 // Hàm tìm kiếm
 const onSearch = () => {
-    getPaginatedBrands();
+    fetchPaginatedBrands();
 };
 
 // Hàm lấy danh sách thương hiệu theo phân trang
-const getPaginatedBrands = async () => {
+const fetchPaginatedBrands = async () => {
     loading.value = true;
-    const q = query(collection(db, 'brands'));
-    const querySnapshot = await getDocs(q);
-    brands.value = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-    });
-
+    brands.value = await getPaginatedBrands();
     totalRecords.value = brands.value.length;
     loading.value = false;
 };
 
-getPaginatedBrands();
+fetchPaginatedBrands();
 
 // Hàm xóa thương hiệu
 const deleteBrand = async (id) => {
     await deleteDoc(doc(db, 'brands', id));
     deleteBrandDialog.value = false;
-    getPaginatedBrands();
+    fetchPaginatedBrands();
 };
 
 // Hàm xóa các thương hiệu đã chọn
@@ -196,22 +191,22 @@ function hideDialog() {
 }
 
 function openNew() {
-    action.value = "Tạo"
+    action.value = 'Tạo';
     isDisabled.value = false;
     brand.value = {};
     brandDialog.value = true;
 }
 
 function editBrandDetails(value) {
-    action.value = "Cập nhật"
+    action.value = 'Cập nhật';
     brand.value = { ...value, createdAt: value.createdAt, updatedAt: value.updatedAt };
     brandDialog.value = true;
 }
 
 async function handleSaveBrand() {
     await saveBrand(brand.value);
-    hideDialog()
-    getPaginatedBrands();
+    hideDialog();
+    fetchPaginatedBrands();
 }
 
 function exportCSV() {
@@ -220,7 +215,7 @@ function exportCSV() {
 
 async function handleCreateDummyBrands() {
     await createDummyBrands();
-    hideDialog()
-    getPaginatedBrands();
+    hideDialog();
+    fetchPaginatedBrands();
 }
 </script>
