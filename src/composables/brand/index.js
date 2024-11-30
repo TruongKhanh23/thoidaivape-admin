@@ -23,18 +23,23 @@ export const saveBrand = async (brandData) => {
     }
 };
 
-export const getPaginatedBrands = async () => {
+export const getPaginatedBrands = async (source = 'default') => {
     const brands = ref([]);
     const q = query(collection(db, 'brands'));
-    const querySnapshot = await getDocs(q);
-    brands.value = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-    });
-    store.dispatch(
-        'setBrands',
-        brands.value.map((brand) => {
-            return { id: brand.id, name: brand.name };
-        })
-    );
-    return brands.value;
+    try {
+        const querySnapshot = await getDocs(q, { source });
+        brands.value = querySnapshot.docs.map((doc) => {
+            return { id: doc.id, ...doc.data() };
+        });
+        store.dispatch(
+            'setBrands',
+            brands.value.map((brand) => {
+                return { id: brand.id, name: brand.name };
+            })
+        );
+        return brands.value;
+    } catch (error) {
+        console.error('Error fetching brands:', error);
+        throw error;
+    }
 };

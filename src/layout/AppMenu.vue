@@ -165,10 +165,6 @@ const model = ref([
             { label: 'Collections', icon: 'pi pi-fw pi-file', to: '/admin/collections', requiredRights: 'read_collection' },
             { label: 'Brands', icon: 'pi pi-fw pi-file', to: '/admin/brands', requiredRights: 'read_brand' }
         ]
-    },
-    {
-        label: 'Admin',
-        items: [{ label: 'Accounts', icon: 'pi pi-fw pi-briefcase', to: '/admin/accounts', requiredRights: 'admin' }]
     }
     //others.value,
     //uiComponents.value,
@@ -176,6 +172,13 @@ const model = ref([
     //subMenu.value,
     //getStarted.value
 ]);
+
+if (rights.value[0] == 'admin') {
+    model.value.push({
+        label: 'Admin',
+        items: [{ label: 'Accounts', icon: 'pi pi-fw pi-briefcase', to: '/admin/accounts', requiredRights: 'admin' }]
+    });
+}
 
 // Hàm lọc menu dựa trên quyền
 const filterMenu = (items) => {

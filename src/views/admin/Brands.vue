@@ -122,13 +122,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { formatDate } from '@/utils';
-import { canCreateBrand, canUpdateBrand, canDeleteBrand } from '@/composables/rights';
+import { checkAccountRights } from '@/composables/rights';
 import { createDummyBrands } from '@/composables/dummy/brand';
 import { saveBrand, getPaginatedBrands } from '@/composables/brand';
+
+const canCreateBrand = computed(() => checkAccountRights('create_brand'));
+const canUpdateBrand = computed(() => checkAccountRights('update_brand'));
+const canDeleteBrand = computed(() => checkAccountRights('delete_brand'));
 
 const dtBrands = ref();
 const loading = ref(false);
@@ -153,7 +157,11 @@ const onSearch = () => {
 // Hàm lấy danh sách thương hiệu theo phân trang
 const fetchPaginatedBrands = async () => {
     loading.value = true;
-    brands.value = await getPaginatedBrands();
+    try {
+        brands.value = await getPaginatedBrands('cache');
+    } catch (error) {
+        brands.value = await getPaginatedBrands('server');
+    }
     totalRecords.value = brands.value.length;
     loading.value = false;
 };

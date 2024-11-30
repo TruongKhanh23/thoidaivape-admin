@@ -36,7 +36,7 @@
                 <Column field="provider" header="Loại tài khoản" sortable style="min-width: 10rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem" header="Hành động">
                     <template #body="slotProps">
-                        <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="viewUserDetails(slotProps.data)" />
+                        <Button icon="pi pi-eye" class="mr-2" @click="viewUserDetails(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -107,7 +107,12 @@ const lastVisible = ref(null); // Store last visible document for pagination
 // Functions
 const fetchUsers = async () => {
     loading.value = true;
-    users.value = await getPaginatedUsers();
+    try {
+        users.value = await getPaginatedUsers('cache');
+        console.log('Fetch user from cache');
+    } catch (error) {
+        users.value = await getPaginatedUsers('server');
+    }
     totalRecords.value = users.value.length;
     loading.value = false;
 };

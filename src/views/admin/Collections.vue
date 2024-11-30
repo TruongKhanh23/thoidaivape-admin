@@ -43,9 +43,9 @@
                     </template>
                 </Column>
                 <Column field="updatedBy" header="Cập nhật bởi" sortable></Column>
-                <Column :exportable="false" style="min-width: 12rem" header="Hành động">
+                <Column v-if="canUpdateCollection" :exportable="false" style="min-width: 12rem" header="Hành động">
                     <template #body="slotProps">
-                        <Button v-if="canUpdateCollection" icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCollectionDetails(slotProps.data)" />
+                        <Button v-if="canUpdateCollection" icon="pi pi-pencil" class="mr-2" @click="editCollectionDetails(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -98,8 +98,11 @@
 import { getPaginatedCollections, saveCollection } from '@/composables/collection';
 import { formatDate } from '@/utils';
 import { FilterMatchMode } from '@primevue/core/api';
-import { onMounted, ref } from 'vue';
-import { canCreateCollection, canUpdateCollection } from '@/composables/rights';
+import { onMounted, ref, computed } from 'vue';
+import { checkAccountRights } from '@/composables/authentication';
+
+const canCreateCollection = computed(() => checkAccountRights('create_collection'));
+const canUpdateCollection = computed(() => checkAccountRights('update_collection'));
 
 // Variables
 const dtCollections = ref();
@@ -121,7 +124,11 @@ const isDisabled = ref(false);
 // Functions
 const fetchCollections = async () => {
     loading.value = true;
-    collections.value = await getPaginatedCollections();
+    try {
+        collections.value = await getPaginatedCollections('cache');
+    } catch (error) {
+        collections.value = await getPaginatedCollections('server');
+    }
     totalRecords.value = collections.value.length;
     loading.value = false;
 };
