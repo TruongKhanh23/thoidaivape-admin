@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, addDoc, startAfter, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
 import { allRoles } from '@/composables/rights';
+import store from '@/store';
 
 const loading = ref(false);
 const accounts = ref([]);
@@ -29,16 +30,11 @@ const roles = allRoles.map((role) => ({
 }));
 
 const getAllAccounts = async () => {
-    loading.value = true;
-
-    // Truy vấn để lấy tất cả các tài khoản (Firestore không hỗ trợ lọc trực tiếp trong trường hợp này).
     const q = query(collection(db, 'accounts'));
     const querySnapshot = await getDocs(q);
-
-    // Lọc các tài khoản không có quyền 'admin' dựa trên trường code trong rights.
-    accounts.value = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })).filter((account) => !account.rights.some((right) => right.code === 'admin'));
-
-    loading.value = false;
+    accounts.value = querySnapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data() };
+    });
 };
 
 const searchCache = ref({}); // Khởi tạo cache tìm kiếm
@@ -116,7 +112,7 @@ const saveAccount = async () => {
     // Reset pagination và fetch lại danh sách
     lastVisible.value = null;
     currentPage.value = 0;
-    await getPaginatedAccounts();
+    await getAllAccounts();
     loading.value = false;
 };
 
@@ -145,13 +141,13 @@ function onPageChange(event) {
     pageSize.value = event.rows;
     // Đảm bảo lastVisible được reset khi thay đổi trang
     lastVisible.value = null;
-    getPaginatedAccounts(); // Gọi lại fetchUsers khi thay đổi trang
+    getAllAccounts(); // Gọi lại fetchUsers khi thay đổi trang
 }
 
 const onSearch = () => {
     lastVisible.value = null; // Reset phân trang
     currentPage.value = 0; // Reset trang hiện tại
-    getPaginatedAccounts(); // Gọi lại tìm kiếm
+    getAllAccounts(); // Gọi lại tìm kiếm
 };
 
 export {
