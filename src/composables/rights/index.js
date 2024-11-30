@@ -1,4 +1,25 @@
 import store from '@/store';
+
+const userRoles = ['read_user'];
+
+const productRoles = ['create_product', 'read_product', 'update_product', 'delete_product'];
+
+const orderRoles = ['read_order', 'update_order', 'delete_order'];
+
+const discountCodeRoles = ['create_discountCode', 'read_discountCode', 'update_discountCode', 'delete_discountCode'];
+
+const contactRoles = ['read_contact'];
+
+const bannerRoles = ['create_banner', 'read_banner', 'update_banner', 'delete_banner'];
+
+const newsRoles = ['create_news', 'read_news', 'update_news', 'delete_news'];
+
+const collectionRoles = ['create_collection', 'read_collection', 'update_collection'];
+
+const brandRoles = ['create_brand', 'read_brand', 'update_brand', 'delete_brand'];
+
+export const allRoles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles, ...collectionRoles, ...brandRoles];
+
 // Hàm kiểm tra quyền
 export const checkAccountRights = (requiredRights) => {
     // Lấy thông tin tài khoản hiện tại từ store

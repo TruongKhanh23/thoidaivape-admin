@@ -1,34 +1,18 @@
+import { computed } from 'vue';
 import { db } from '@/firebaseConfig';
 import images from './images.json';
+import store from '@/store';
 import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 
 // Các giá trị cố định
-const brands = [
-    { id: 'oxva', name: 'Oxva' },
-    { id: 'aspire', name: 'Aspire' },
-    { id: 'fitpod', name: 'Fitpod' },
-    { id: 'lost-vape', name: 'Lost Vape' },
-    { id: 'voopoo', name: 'Voopoo' },
-    { id: 'geek-vape', name: 'Geek Vape' },
-    { id: 'dovpo', name: 'Dovpo' },
-    { id: 'sp2s', name: 'SP2S' },
-    { id: 'romio-astro', name: 'Romio Astro' },
-    { id: 'dotmod', name: 'dotMod' }
-];
+const brands = computed(() => store.getters.getBrands);
 
 const statusOptions = [
     { id: 'in_stock', name: 'Còn hàng' },
     { id: 'out_of_stock', name: 'Hết hàng' }
 ];
 
-const collections = [
-    { id: 'podsystem', name: 'Podsystem' },
-    { id: 'vape-box', name: 'Vape Box' },
-    { id: 'freebase', name: 'Freebase' },
-    { id: 'occ-coil', name: 'Occ Coil' },
-    { id: 'pod-head', name: 'Pod Head' },
-    { id: 'saltnic', name: 'Saltnic' }
-];
+const collections = computed(() => store.getters.getCollections);
 
 function getRandomThumbnail() {
     if (!Array.isArray(images) || images.length === 0) {
@@ -139,9 +123,9 @@ export const createDummyProducts = async () => {
                 soldAmount: Math.floor(Math.random() * 200),
                 shortDescription: generateShortDescription(),
                 description: generateRandomProductDescription(),
-                brand: brands[Math.floor(Math.random() * brands.length)],
+                brand: brands.value[Math.floor(Math.random() * brands.value.length)],
                 status: statusOptions[Math.floor(Math.random() * statusOptions.length)],
-                collection: collections[Math.floor(Math.random() * collections.length)],
+                collection: collections.value[Math.floor(Math.random() * collections.value.length)],
                 tags: generateRandomTags(),
                 thumbnail: getRandomThumbnail(),
                 images: getRandomImages()

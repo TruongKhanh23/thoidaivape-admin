@@ -104,18 +104,11 @@ onMounted(async () => {
 
 const account = computed(() => store.getters.getAccount);
 
-const collections = [
-    { id: 'podsystem', name: 'Podsystem' },
-    { id: 'vape-box', name: 'Vape Box' },
-    { id: 'freebase', name: 'Freebase' },
-    { id: 'occ-coil', name: 'Occ Coil' },
-    { id: 'pod-head', name: 'Pod Head' },
-    { id: 'saltnic', name: 'Saltnic' }
-]; // Thêm bộ sưu tập thực tế của bạn ở đây
 const statusOptions = [
     { id: 'in_stock', name: 'Còn hàng' },
     { id: 'out_of_stock', name: 'Hết hàng' }
 ];
+const collections = computed(() => store.getters.getCollections);
 const brands = computed(() => store.getters.getBrands);
 
 function handleUploadThumbnail(binary) {

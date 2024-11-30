@@ -50,6 +50,12 @@ export async function getPaginatedCollections(lastVisible = null, maxCollections
         collections.push({ id: doc.id, ...doc.data() });
         lastDoc = doc;
     });
+    store.dispatch(
+        'setCollections',
+        collections.map((collection) => {
+            return { id: collection.id, name: collection.name };
+        })
+    );
 
     // Cập nhật cache với kết quả tìm kiếm
     const cacheKey = searchQuery + lastVisible?.id;
