@@ -164,16 +164,13 @@ const saveProduct = async () => {
 
         await Promise.all([updateProductDetails, updateProduct]); // Chạy song song
     } else {
-        // Tạo sản phẩm mới song song
-        const addProduct = addDoc(collection(db, 'products'), {
+        const productRef = await addDoc(collection(db, 'products'), {
             ...commonData,
             createdAt: currentDate,
             createdBy: account.value.email
         });
 
-        const setProductDetails = setDoc(doc(db, 'product-details', id), productDetails);
-
-        await Promise.all([addProduct, setProductDetails]); // Chạy song song
+        await setDoc(doc(db, 'product-details', productRef.id), productDetails);
     }
 
     router.push('/admin/products');
