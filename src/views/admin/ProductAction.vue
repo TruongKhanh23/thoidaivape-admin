@@ -1,6 +1,6 @@
 <template>
     <div className="card">
-        <div class="font-semibold text-xl mb-4">{{ tittle }} sản phẩm </div>
+        <div class="font-semibold text-xl mb-4">{{ tittle }} sản phẩm</div>
         <div>
             <div class="mb-4">
                 <label for=".name" class="block font-semibold">Tên sản phẩm</label>
@@ -26,7 +26,7 @@
             </div>
             <div class="mb-4">
                 <label for="product-images" class="block font-semibold">Ảnh sản phẩm</label>
-                <ImageUpload idPrefix="product-images" :multiple="true" @binary-selected="handleUploadProductImages" :initialBinaries="product.images"/>
+                <ImageUpload idPrefix="product-images" :multiple="true" @binary-selected="handleUploadProductImages" :initialBinaries="product.images" />
             </div>
             <div class="mb-4">
                 <label for="collectionId" class="block font-semibold">Bộ sưu tập</label>
@@ -38,21 +38,7 @@
             </div>
             <div class="mb-4">
                 <label for="tags" class="block font-semibold">Thẻ (Tags)</label>
-                <MultiSelect v-model="product.tags" :options="tags" optionLabel="name" placeholder="Thêm tags" :filter="true" class="w-full max-w-full">
-                    <template #value="slotProps">
-                        <div class="inline-flex items-center py-1 px-2 bg-primary text-primary-contrast rounded-border mr-2" v-for="option of slotProps.value" :key="option.id">
-                            <div>#{{ option.name }}</div>
-                        </div>
-                        <template v-if="!slotProps.value || slotProps.value.length === 0">
-                            <div class="p-1">Thêm tags</div>
-                        </template>
-                    </template>
-                    <template #option="slotProps">
-                        <div class="flex items-center">
-                            <div>#{{ slotProps.option.name }}</div>
-                        </div>
-                    </template>
-                </MultiSelect>
+                <InputTag v-model="product.tags" :initialContent="product.tags" @action:tagsUpdated="handleUpdateTags" />
             </div>
             <div class="mb-4">
                 <label for="soldAmount" class="block font-semibold">Số lượng đã bán</label>
@@ -93,6 +79,7 @@ import { db } from '@/firebaseConfig';
 import { getProductById } from '@/composables/product';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import InputTag from '@/components/Input/InputTag.vue';
 
 const store = useStore();
 const route = useRoute();
@@ -100,7 +87,7 @@ const router = useRouter();
 
 const action = computed(() => route.params.action);
 const productId = computed(() => route.params.id);
-const tittle = computed(() => action.value == "update" ? "Chỉnh sửa" : "Thêm mới")
+const tittle = computed(() => (action.value == 'update' ? 'Chỉnh sửa' : 'Thêm mới'));
 
 const product = ref({});
 
@@ -115,16 +102,8 @@ onMounted(async () => {
     }
 });
 
-const thumbnail = ref();
-const images = ref([]);
-const description = ref();
-
 const account = computed(() => store.getters.getAccount);
 
-const tags = [
-    { id: 'vape', name: 'Vape' },
-    { id: 'cks', name: 'CKS' }
-];
 const collections = [
     { id: 'podsystem', name: 'Podsystem' },
     { id: 'vape-box', name: 'Vape Box' },
@@ -151,15 +130,19 @@ const brands = [
 ];
 
 function handleUploadThumbnail(binary) {
-    thumbnail.value = binary;
+    product.value.thumbnail = binary;
 }
 
 function handleUploadProductImages(data) {
-    images.value = Array.isArray(data) ? data : [data];
+    product.value.images = Array.isArray(data) ? data : [data];
 }
 
 function handleUpdateRichText(content) {
-    description.value = content;
+    product.value.description = content;
+}
+
+function handleUpdateTags(content) {
+    product.value.tags = content;
 }
 
 const saveProduct = async () => {
@@ -167,9 +150,6 @@ const saveProduct = async () => {
 
     const data = ref({
         ...product.value,
-        thumbnail: thumbnail.value ?? product.value.thumbnail ?? "",
-        images: images.value.length > 0 ? images.value : product.value.images,
-        description: description.value ?? '',
         updatedAt: currentDate,
         updatedBy: account.value.email
     });
@@ -186,7 +166,7 @@ const saveProduct = async () => {
     router.push('/admin/products');
 };
 
-function handleOnCancle () {
-    router.push("/admin/products")
+function handleOnCancle() {
+    router.push('/admin/products');
 }
 </script>

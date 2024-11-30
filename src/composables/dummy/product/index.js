@@ -62,10 +62,7 @@ function generateRandomTags() {
     const selectedTags = shuffledTags.slice(0, numberOfTags);
 
     // Tạo mảng các object với id và name
-    return selectedTags.map((tag) => ({
-        id: tag.toLowerCase().replace(/\s+/g, ''), // Biến tag thành chữ thường và bỏ khoảng trắng
-        name: tag
-    }));
+    return selectedTags;
 }
 
 function generateRandomProductName() {
