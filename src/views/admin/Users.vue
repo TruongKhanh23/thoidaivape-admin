@@ -109,7 +109,7 @@ const fetchUsers = async () => {
     loading.value = true;
     users.value = await getPaginatedUsers();
     totalRecords.value = users.value.length;
-    //loading.value = false;
+    loading.value = false;
 };
 
 // Hàm thay đổi filter và gọi lại fetchUsers

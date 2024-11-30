@@ -13,8 +13,6 @@ onMounted(async () => {
     brands.value = await getPaginatedBrands();
     collections.value = await getPaginatedCollections();
 });
-
-document.documentElement.classList.toggle('app-dark');
 </script>
 
 <style scoped></style>
