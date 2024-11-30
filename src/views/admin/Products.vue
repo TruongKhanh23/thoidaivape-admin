@@ -26,7 +26,7 @@
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên sản phẩm..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
-                            <Button v-if="canCreateProduct" label="Tạo hàng loại" icon="pi pi-plus" @click="handleCreateDummyProducts" />
+                            <Button v-if="canCreateProduct" label="Tạo hàng loạt" icon="pi pi-plus" @click="handleCreateDummyProducts" />
                             <Button v-if="canCreateProduct" label="Tạo mới" icon="pi pi-plus" @click="navigateToProductCreate" />
                             <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
                             <Button v-if="canDeleteProduct" label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
@@ -35,11 +35,6 @@
                 </template>
 
                 <Column selectionMode="multiple" style="width: 3rem"></Column>
-                <Column header="Ảnh sản phẩm" field="thumbnail" style="min-width: 9rem">
-                    <template #body="slotProps">
-                        <img :src="`${slotProps.data.thumbnail}`" :alt="slotProps.data.thumbnail" class="rounded" style="width: 64px" />
-                    </template>
-                </Column>
                 <Column field="name" header="Tên sản phẩm" sortable style="min-width: 10rem"></Column>
                 <Column field="price" header="Giá" sortable style="min-width: 8rem">
                     <template #body="slotProps">
@@ -127,7 +122,8 @@ const onSearch = () => {
 // Hàm lấy danh sách sản phẩm theo phân trang
 const getPaginatedProducts = async () => {
     loading.value = true;
-    const q = query(collection(db, 'products'));
+    const productsRef = collection(db, 'products');
+    const q = query(productsRef);
     const querySnapshot = await getDocs(q);
     products.value = querySnapshot.docs.map((doc) => {
         return { id: doc.id, ...doc.data() };

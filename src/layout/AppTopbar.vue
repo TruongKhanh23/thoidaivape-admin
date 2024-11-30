@@ -54,8 +54,6 @@ import AppConfigurator from './AppConfigurator.vue';
 const router = useRouter();
 
 function navigateTo(path) {
-    console.log('went navigate to');
-
     router.push(path);
 }
 

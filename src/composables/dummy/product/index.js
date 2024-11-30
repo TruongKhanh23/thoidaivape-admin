@@ -1,6 +1,6 @@
 import { db } from '@/firebaseConfig';
 import images from './images.json';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 
 // Các giá trị cố định
 const brands = [
@@ -125,7 +125,7 @@ function generateShortDescription() {
 export const createDummyProducts = async () => {
     const now = new Date();
     try {
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 28; i++) {
             const product = {
                 createdBy: 'thoidaivape.cafe@gmail.com',
                 updatedBy: 'thoidaivape.cafe@gmail.com',
@@ -146,11 +146,30 @@ export const createDummyProducts = async () => {
                 thumbnail: getRandomThumbnail(),
                 images: getRandomImages()
             };
-            await addDoc(collection(db, 'products'), product);
-            console.log(`Added product: Product ${i + 1}`);
+
+            // Tách dữ liệu cho collection 'products' (trừ description, images, thumbnail)
+            const productData = { ...product };
+            delete productData.description;
+            delete productData.images;
+            delete productData.thumbnail;
+
+            // Thêm document vào collection 'products'
+            const productRef = await addDoc(collection(db, 'products'), productData);
+
+            // Tách dữ liệu cho collection 'product-details'
+            const productDetails = {
+                description: product.description,
+                images: product.images,
+                thumbnail: product.thumbnail
+            };
+
+            // Thêm document vào collection 'product-details' với ID của sản phẩm
+            await setDoc(doc(db, 'product-details', productRef.id), {
+                ...productDetails
+            });
         }
     } catch (error) {
-        console.log(console.error);
+        console.error('Error while adding products:', error);
     }
-    console.log('All products have been added.');
+    console.log('All products and details have been added.');
 };
