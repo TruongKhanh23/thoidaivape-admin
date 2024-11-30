@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, addDoc, startAfter, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/firebaseConfig'; // Đường dẫn tới file cấu hình firebase của bạn
+import { allRoles } from '@/composables/rights';
 
 const loading = ref(false);
 const accounts = ref([]);
@@ -13,24 +14,6 @@ const deleteAccountDialog = ref(false);
 const account = ref({});
 const pageSize = ref(10);
 const currentPage = ref(0);
-const userRoles = ['read_user'];
-
-const productRoles = ['create_product', 'read_product', 'update_product', 'delete_product'];
-
-const orderRoles = ['read_order', 'update_order', 'delete_order'];
-
-const discountCodeRoles = ['create_discountCode', 'read_discountCode', 'update_discountCode', 'delete_discountCode'];
-
-const contactRoles = ['read_contact'];
-
-const bannerRoles = ['create_banner', 'read_banner', 'update_banner', 'delete_banner'];
-
-const newsRoles = ['create_news', 'read_news', 'update_news', 'delete_news'];
-
-const collectionRoles = ['create_collection', 'read_collection', 'update_collection'];
-
-// Gom tất cả roles lại
-const allRoles = [...userRoles, ...productRoles, ...orderRoles, ...discountCodeRoles, ...contactRoles, ...bannerRoles, ...newsRoles, ...collectionRoles];
 
 // Hàm viết hoa chữ cái đầu mỗi từ
 const capitalizeWords = (str) =>
