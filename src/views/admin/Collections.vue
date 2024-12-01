@@ -54,7 +54,7 @@
                 <div class="flex flex-col gap-6">
                     <div>
                         <label for="name" class="block font-bold mb-3">Tên bộ sưu tập</label>
-                        <InputText id="name" v-model.trim="collection.name" required="true" autofocus :disabled="isDisabled" />
+                        <InputText id="name" v-model.trim="collection.name" required="true" autofocus :disabled="isDisabled" fluid />
                     </div>
 
                     <div class="mb-4">
@@ -183,3 +183,12 @@ async function handleSaveCollection() {
 // Initial Load
 onMounted(fetchCollections);
 </script>
+<style>
+.p-datatable-table {
+    border-color: rgba(128, 128, 128, 0) !important;
+}
+/* Chế độ tối */
+.app-dark .p-datatable-table {
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+</style>
