@@ -23,12 +23,12 @@
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters.global.value" placeholder="Tìm theo tên sản phẩm..." @input="onSearch" />
+                            <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
                             <Button v-if="canCreateProduct" label="Tạo hàng loạt" icon="pi pi-plus" @click="handleCreateDummyProducts" />
                             <Button v-if="canCreateProduct" label="Tạo mới" icon="pi pi-plus" @click="navigateToProductCreate" />
-                            <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
+                            <Button label="Xuất Excel" icon="pi pi-upload" @click="exportCSV($event)" />
                             <Button v-if="canDeleteProduct" label="Xóa" icon="pi pi-trash" :disabled="!selectedProducts.length" @click="confirmDeleteSelected" />
                         </div>
                     </div>

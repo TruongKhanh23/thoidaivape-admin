@@ -24,11 +24,11 @@
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Tìm kiếm..." @input="onFilterChange" />
+                            <InputText v-model="filters['global'].value" placeholder="Tìm theo tên..." @input="onFilterChange" />
                         </IconField>
                         <div class="space-x-2">
                             <Button v-if="canCreateCollection" label="Tạo mới" icon="pi pi-plus" @click="openNew" />
-                            <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
+                            <Button label="Xuất Excel" icon="pi pi-upload" @click="exportCSV($event)" />
                         </div>
                     </div>
                 </template>

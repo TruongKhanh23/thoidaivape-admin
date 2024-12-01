@@ -27,8 +27,8 @@
                             <InputText v-model="filters.global.value" placeholder="Tìm theo tên..." @input="onSearch" />
                         </IconField>
                         <div class="space-x-2">
+                            <Button label="Xuất Excel" icon="pi pi-upload" @click="exportCSV($event)" />
                             <Button label="Xóa" icon="pi pi-trash" :disabled="!selectedAccounts.length" @click="confirmDeleteSelected" />
-                            <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
                         </div>
                     </div>
                 </template>
@@ -37,7 +37,12 @@
                 <Column field="displayName" header="Họ và tên" sortable></Column>
                 <Column field="email" header="Email" sortable></Column>
                 <Column field="provider" header="Loại tài khoản" sortable></Column>
-                <Column :exportable="false" style="min-width: 12rem" header="Hành động">
+                <Column field="createdDate" header="Tạo lúc" sortable style="min-width: 5rem">
+                    <template #body="slotProps">
+                        {{ formatDate(slotProps.data.createdDate) }}
+                    </template>
+                </Column>
+                <Column :exportable="false" style="min-width: 8rem" header="Hành động">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" class="mr-2" @click="editAccount(slotProps.data)" />
                         <Button icon="pi pi-trash" class="text-red-500" @click="confirmDeleteAccount(slotProps.data)" />
@@ -114,6 +119,7 @@ import {
     getAllAccounts
 } from '@/composables/account';
 import { onMounted, onBeforeUnmount } from 'vue';
+import { formatDate } from '@/utils';
 
 onMounted(async () => {
     accounts.value = [];

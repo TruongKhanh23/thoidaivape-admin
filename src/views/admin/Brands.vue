@@ -28,7 +28,7 @@
                         <div class="space-x-2">
                             <Button v-if="canCreateBrand" label="Tạo hàng loạt" icon="pi pi-plus" @click="handleCreateDummyBrands" />
                             <Button v-if="canCreateBrand" label="Tạo mới" icon="pi pi-plus" @click="openNew" />
-                            <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
+                            <Button label="Xuất Excel" icon="pi pi-upload" @click="exportCSV($event)" />
                             <Button v-if="canDeleteBrand" label="Xóa" icon="pi pi-trash" :disabled="!selectedBrands.length" @click="confirmDeleteSelected" />
                         </div>
                     </div>
@@ -36,6 +36,11 @@
 
                 <Column selectionMode="multiple" style="width: 3rem"></Column>
                 <Column field="name" header="Tên thương hiệu" sortable style="min-width: 10rem"></Column>
+                <Column field="createdAt" header="Tạo lúc" sortable style="min-width: 5rem">
+                    <template #body="slotProps">
+                        {{ formatDate(slotProps.data.createdAt) }}
+                    </template>
+                </Column>
                 <Column field="updatedAt" header="Cập nhật lúc" sortable style="min-width: 5rem">
                     <template #body="slotProps">
                         {{ formatDate(slotProps.data.updatedAt) }}
