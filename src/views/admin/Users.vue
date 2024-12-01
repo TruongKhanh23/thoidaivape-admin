@@ -24,17 +24,17 @@
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Tìm kiếm..." @input="onFilterChange" />
+                            <InputText v-model="filters['global'].value" placeholder="Tìm theo tên..." @input="onFilterChange" />
                         </IconField>
-                        <Button label="Xuất CSV" icon="pi pi-upload" @click="exportCSV($event)" />
+                        <Button label="Xuất Excel" icon="pi pi-upload" @click="exportCSV($event)" />
                     </div>
                 </template>
 
                 <Column field="displayName" header="Họ và tên" sortable style="min-width: 16rem"></Column>
                 <Column field="email" header="Email" sortable style="min-width: 20rem"></Column>
-                <Column field="phoneNumber" header="Số điện thoại" sortable style="min-width: 15rem"></Column>
-                <Column field="provider" header="Loại tài khoản" sortable style="min-width: 10rem"></Column>
-                <Column :exportable="false" style="min-width: 12rem" header="Hành động">
+                <Column field="phoneNumber" header="Số điện thoại" sortable style="min-width: 10rem"></Column>
+                <Column field="provider" header="Loại tài khoản" sortable style="min-width: 8rem"></Column>
+                <Column :exportable="false" style="min-width: 6rem" header="Hành động">
                     <template #body="slotProps">
                         <Button icon="pi pi-eye" class="mr-2" @click="viewUserDetails(slotProps.data)" />
                     </template>
