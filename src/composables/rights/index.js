@@ -15,7 +15,7 @@ const bannerRoles = ['create_banner', 'read_banner', 'update_banner', 'delete_ba
 
 const newsRoles = ['create_news', 'read_news', 'update_news', 'delete_news'];
 
-const collectionRoles = ['create_collection', 'read_collection', 'update_collection'];
+const collectionRoles = ['create_collection', 'read_collection', 'update_collection', 'delete_collection'];
 
 const brandRoles = ['create_brand', 'read_brand', 'update_brand', 'delete_brand'];
 
