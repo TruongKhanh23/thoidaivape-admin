@@ -34,9 +34,7 @@
                 </template>
 
                 <Column field="name" header="Tên bộ sưu tập" sortable style="min-width: 12rem"></Column>
-                <Column field="description" header="Mô tả chi tiết" sortable style="min-width: 12rem">
-                    <template #body="slotProps"><span class="line-clamp-1" v-html="slotProps.data.description"></span></template
-                ></Column>
+                <Column field="orderNumber" header="Thứ tự" sortable style="min-width: 12rem"> ></Column>
                 <Column field="updatedAt" header="Cập nhật lúc" sortable style="min-width: 12rem">
                     <template #body="slotProps">
                         {{ formatDate(slotProps.data.updatedAt) }}
@@ -56,6 +54,21 @@
                     <div>
                         <label for="name" class="block font-bold mb-3">Tên bộ sưu tập</label>
                         <InputText id="name" v-model.trim="collection.name" required="true" autofocus :disabled="isDisabled" fluid />
+                    </div>
+
+                    <div>
+                        <label for="children" class="block font-bold mb-3">Loại</label>
+                        <Dropdown v-model="collection.type" :options="collectionTypes" optionLabel="name" placeholder="Chọn loại bộ sưu tập" :filter="true" class="w-full max-w-full" />
+                    </div>
+
+                    <div v-if="collection.type && collection.type.id == 'parrent'">
+                        <label for="children" class="block font-bold mb-3">Bộ sưu tập con</label>
+                        <MultiSelect v-model="collection.childrens" :options="collections.filter((item) => item.id != collection.id)" optionLabel="name" placeholder="Chọn bộ sưu tập con" :filter="true" class="w-full max-w-full" />
+                    </div>
+
+                    <div>
+                        <label for="orderNumber" class="block font-bold mb-3">Thứ tự</label>
+                        <InputNumber id="orderNumber" v-model="collection.orderNumber" required="true" fluid />
                     </div>
 
                     <div class="mb-4">
@@ -141,6 +154,11 @@ const totalRecords = ref(0);
 const lastVisible = ref(null); // Store last visible document for pagination
 const description = ref();
 const isDisabled = ref(false);
+
+const collectionTypes = ref([
+    { id: 'parrent', name: 'Bộ sưu tập cha' },
+    { id: 'children', name: 'Bộ sưu tập con' }
+]);
 
 // Functions
 const fetchCollections = async () => {
