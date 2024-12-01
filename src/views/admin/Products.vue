@@ -35,14 +35,23 @@
                 </template>
 
                 <Column selectionMode="multiple" style="width: 3rem"></Column>
-                <Column field="name" header="Tên sản phẩm" sortable style="min-width: 10rem"></Column>
+                <Column field="name" header="Tên sản phẩm" sortable style="min-width: 10rem">
+                    <template #body="slotProps">
+                        <span class="line-clamp-2">{{ slotProps.data.name }}</span>
+                    </template></Column
+                >
                 <Column field="price" header="Giá" sortable style="min-width: 8rem">
                     <template #body="slotProps">
                         {{ formatCurrency(slotProps.data.price) }}
                     </template>
                 </Column>
                 <Column field="collection.name" header="Bộ sưu tập" sortable style="min-width: 9rem"></Column>
-                <Column field="status.name" header="Trạng thái" sortable style="min-width: 9rem"></Column>
+                <Column field="status.name" header="Trạng thái" sortable style="min-width: 6rem">
+                    <template #body="slotProps">
+                        <Button v-if="slotProps.data.status.name == 'Còn hàng'" icon="pi pi-check" rounded outlined />
+                        <Button v-else icon="pi pi-times" severity="danger" rounded outlined />
+                    </template>
+                </Column>
                 <Column field="updatedAt" header="Cập nhật lúc" sortable style="min-width: 5rem">
                     <template #body="slotProps">
                         {{ formatDate(slotProps.data.updatedAt) }}

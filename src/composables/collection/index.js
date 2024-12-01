@@ -1,4 +1,4 @@
-import { collection, getDocs, query, updateDoc, addDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, updateDoc, addDoc, doc, where, deleteDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { ref } from 'vue';
 import store from '@/store';
@@ -42,5 +42,30 @@ export const saveCollection = async (collectionData, description) => {
             createdAt: currentDate,
             createdBy: account.email
         });
+    }
+};
+
+export const removeCollection = async (selectedCollection) => {
+    try {
+        await deleteDoc(doc(db, 'collections', selectedCollection.id));
+    } catch (error) {
+        console.error('Lỗi khi kiểm tra hoặc xóa bộ sưu tập:', error);
+    }
+};
+
+export const getTotalProductsByCollection = async (selectedCollection) => {
+    try {
+        // Tham chiếu đến bảng 'products' trong Firestore
+        const productsRef = collection(db, 'products');
+        const q = query(productsRef, where('collection.id', '==', selectedCollection.id));
+        const querySnapshot = await getDocs(q);
+
+        // Tính tổng số lượng sản phẩm
+        const totalProductsByCollectionId = querySnapshot.size;
+
+        return totalProductsByCollectionId;
+    } catch (error) {
+        console.error('Lỗi khi kiểm tra', error);
+        alert(error);
     }
 };

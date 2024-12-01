@@ -42,7 +42,7 @@
                     </template>
                 </Column>
                 <Column field="updatedBy" header="Cập nhật bởi" sortable></Column>
-                <Column v-if="canUpdateBrand || canDeleteBrand" :exportable="false" style="min-width: 8rem" header="Hành động">
+                <Column v-if="canUpdateBrand || canDeleteBrand" :exportable="false" style="min-width: 6rem" header="Hành động">
                     <template #body="slotProps">
                         <Button v-if="canUpdateBrand" icon="pi pi-pencil" class="mr-2" @click="editBrandDetails(slotProps.data)" />
                         <Button v-if="canDeleteBrand" icon="pi pi-trash" class="text-red-500" @click="confirmDeleteBrand(slotProps.data)" />
